@@ -419,9 +419,9 @@ const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
 const SK = 'sc_rounds_v2';
 const SET_K = 'sc_settings_v2';
 
-function loadRounds() { try { return JSON.parse(localStorage.getItem(SK)||'[]'); } catch { return []; } }
+function loadRounds() { try { return JSON.parse(localStorage.getItem(SK)||'[]'); } catch(e) { return []; } }
 function saveRounds(r) { localStorage.setItem(SK, JSON.stringify(r)); }
-function loadSettings() { try { return JSON.parse(localStorage.getItem(SET_K)||'null'); } catch { return null; } }
+function loadSettings() { try { return JSON.parse(localStorage.getItem(SET_K)||'null'); } catch(e) { return null; } }
 function saveSettings(s) { localStorage.setItem(SET_K, JSON.stringify(s)); }
 
 function defaultSettings() {
@@ -598,7 +598,7 @@ function handleQR(data, expectedPoint) {
     stopCamera();
 
     const ts = Date.now();
-    const entry = { ts, user: state.user?.email || 'tuntematon', name: state.user?.name || '' };
+    const entry = { ts, user: (state.user && state.user.email) || 'tuntematon', name: (state.user && state.user.name) || '' };
 
     if (point === 'P1') {
       if (state.current && state.current.p1 && !state.current.p2) {
@@ -634,7 +634,7 @@ function handleQR(data, expectedPoint) {
 
     setTimeout(() => { state.scanOk = null; render(); }, 2500);
     render();
-  } catch {
+  } catch(e) {
     stopCamera();
     state.scanError = 'Tuntematon QR-koodi.';
     render();
@@ -678,8 +678,8 @@ async function saveToSheets(round) {
   const p1t = round.p1 ? new Date(round.p1.ts).toLocaleString('fi-FI') : '—';
   const p2t = round.p2 ? new Date(round.p2.ts).toLocaleString('fi-FI') : '—';
   const kesto = (round.p1 && round.p2) ? durStr(round.p1.ts, round.p2.ts) : '—';
-  const user = round.p1?.user || round.p2?.user || '—';
-  const name = round.p1?.name || round.p2?.name || '—';
+  const user = (round.p1 && round.p1.user) || (round.p2 && round.p2.user) || '—';
+  const name = (round.p1 && round.p1.name) || (round.p2 && round.p2.name) || '—';
 
   const values = [[
     new Date(round.id).toLocaleString('fi-FI'),
@@ -703,7 +703,7 @@ async function saveToSheets(round) {
   );
   if (!resp.ok) {
     const err = await resp.json();
-    throw new Error(err.error?.message || resp.status);
+    throw new Error((err.error && err.error.message) || resp.status);
   }
 }
 
@@ -908,8 +908,8 @@ function renderKierros() {
   html += `<div class="action-card">
     <div class="card-title">Tarkastuskierros — ${cfg.siteName}</div>`;
 
-  const hasP1 = state.current?.p1;
-  const hasP2 = state.current?.p2;
+  const hasP1 = (state.current && state.current.p1);
+  const hasP2 = (state.current && state.current.p2);
 
   html += `<div class="step ${hasP1 ? 'step-done' : 'step-active'}">
     <div class="step-num">${hasP1 ? '✓' : '1'}</div>
@@ -1033,7 +1033,7 @@ function renderAsetukset() {
   </div>
   <div class="action-card">
     <div class="card-title">Tili</div>
-    <div style="font-size:14px;color:var(--text2);margin-bottom:12px">${state.user?.email}</div>
+    <div style="font-size:14px;color:var(--text2);margin-bottom:12px">${(state.user && state.user.email)}</div>
     <button class="btn btn-danger btn-sm" onclick="signOut()">Kirjaudu ulos</button>
   </div>`;
 }
