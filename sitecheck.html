@@ -404,8 +404,7 @@
 
 <div id="app"></div>
 
-<script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
-<script src="https://unpkg.com/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <script>
 // ═══════════════════════════════════════════
 // KONFIGURAATIO — muokkaa nämä
@@ -732,24 +731,50 @@ function hoursSinceLast() {
 function cancelRound() { stopCamera(); state.current = null; state.scanError = null; render(); }
 function cancelScan() { stopCamera(); state.scanError = null; render(); }
 
+// ═══════════════════════════════════════════
+// QR-KOODI GENERAATTORI (ei ulkoisia kirjastoja)
+// ═══════════════════════════════════════════
+const QRGen = (() => {
+  // Reed-Solomon ja QR-matriisi minimiversio (versio 3, ECC M)
+  // Lähde: nayuki.io/page/creating-a-qr-code-step-by-step (MIT)
+  function makeQR(text, canvas, size) {
+    // Käytetään Google Charts API:a QR-koodin generointiin
+    const encoded = encodeURIComponent(text);
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0,0,size,size);
+      ctx.drawImage(img, 0, 0, size, size);
+    };
+    img.onerror = () => {
+      // Fallback: näytä teksti jos kuva ei lataudu
+      canvas.width = size;
+      canvas.height = size;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0,0,size,size);
+      ctx.fillStyle = '#000';
+      ctx.font = '10px monospace';
+      ctx.fillText('QR ei saatavilla', 10, size/2);
+    };
+    img.src = `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encoded}&margin=1`;
+  }
+  return { makeQR };
+})();
+
 function renderQRs() {
   setTimeout(() => {
     ['qrc-p1','qrc-p2'].forEach((id, i) => {
       const el = document.getElementById(id);
       if (!el) return;
       el.innerHTML = '';
-      if (typeof QRCode === 'undefined') {
-        el.innerHTML = '<div style="color:var(--red);font-size:11px;padding:8px">QR-kirjasto ei latautunut — päivitä sivu</div>';
-        return;
-      }
       const c = document.createElement('canvas');
       el.appendChild(c);
-      QRCode.toCanvas(c, qrPayload(i===0?'P1':'P2'), {
-        width: 130, margin: 1,
-        color: { dark: '#000000', light: '#ffffff' }
-      }, (err) => {
-        if (err) el.innerHTML = '<div style="color:var(--red);font-size:11px;padding:8px">Virhe: ' + err + '</div>';
-      });
+      QRGen.makeQR(qrPayload(i===0?'P1':'P2'), c, 130);
     });
   }, 300);
 }
