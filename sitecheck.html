@@ -245,7 +245,7 @@ async function writeTokenToSheet(token){
 }
 
 async function loadHistoryFromSheet(){
-  const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+SHEET_K+'!A2:L500',
+  const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+encodeURIComponent(SHEET_K)+'!A2:L500',
     {headers:{Authorization:'Bearer '+state.accessToken}});
   const d=await r.json();
   if(!d.values||!d.values.length)return;
@@ -265,33 +265,34 @@ async function loadHistoryFromSheet(){
 
 async function appendToSheets(round,partial){
   await ensureKirjauksetSheet();
-  const p1t=round.p1?(round.p1.tsF||fmt(round.p1.ts)):'—';
-  const p2t=round.p2?(round.p2.tsF||fmt(round.p2.ts)):'—';
+  const idStr=new Date(round.id).toLocaleString('fi-FI',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const p1t=round.p1?fmt(round.p1.ts):'—';
+  const p2t=round.p2?fmt(round.p2.ts):'—';
   const kesto=(round.p1&&round.p2&&!round.sheetRow)?durStr(round.p1.ts,round.p2.ts):(round.kesto||'—');
   const user=(round.p1&&round.p1.user)||(round.p2&&round.p2.user)||'—';
   const name=(round.p1&&round.p1.name)||(round.p2&&round.p2.name)||'—';
   const p1gps=(round.p1&&round.p1.gps)?(round.p1.gps.lat+', '+round.p1.gps.lon+' (+-'+round.p1.gps.acc+'m)'):(round.p1&&round.p1.gpsStr?round.p1.gpsStr:'—');
   const p2gps=(round.p2&&round.p2.gps)?(round.p2.gps.lat+', '+round.p2.gps.lon+' (+-'+round.p2.gps.acc+'m)'):(round.p2&&round.p2.gpsStr?round.p2.gpsStr:'—');
-  const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+SHEET_K+'!A:A:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS',
+  const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+encodeURIComponent(SHEET_K)+'!A1:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS',
     {method:'POST',headers:{Authorization:'Bearer '+state.accessToken,'Content-Type':'application/json'},
-    body:JSON.stringify({values:[[new Date(round.id).toLocaleString('fi-FI'),cfg.siteName,name,user,p1t,cfg.p1label,p1gps,p2t,cfg.p2label,p2gps,kesto,partial?'kesken':'valmis']]})});
+    body:JSON.stringify({values:[[idStr,cfg.siteName,name,user,p1t,cfg.p1label,p1gps,p2t,cfg.p2label,p2gps,kesto,partial?'kesken':'valmis']]})});
   if(!r.ok){const e=await r.json();throw new Error((e.error&&e.error.message)||r.status);}
 }
 
 async function updateKeskenToValmis(round){
   try{
-    const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+SHEET_K+'!A:L',
+    const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+encodeURIComponent(SHEET_K)+'!A:L',
       {headers:{Authorization:'Bearer '+state.accessToken}});
     const d=await r.json();
     if(!d.values)return false;
-    const idStr=new Date(round.id).toLocaleString('fi-FI');
+    const idStr=new Date(round.id).toLocaleString('fi-FI',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
     let rowIdx=-1;
     d.values.forEach(function(row,i){if(row[0]===idStr&&row[11]==='kesken')rowIdx=i+1;});
     if(rowIdx===-1)return false;
     const p2t=fmt(round.p2.ts);
     const kesto=durStr(round.p1.ts,round.p2.ts);
     const p2gps=(round.p2&&round.p2.gps)?(round.p2.gps.lat+', '+round.p2.gps.lon+' (+-'+round.p2.gps.acc+'m)'):'—';
-    await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+SHEET_K+'!H'+rowIdx+':L'+rowIdx+'?valueInputOption=USER_ENTERED',
+    await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+encodeURIComponent(SHEET_K)+'!H'+rowIdx+':L'+rowIdx+'?valueInputOption=USER_ENTERED',
       {method:'PUT',headers:{Authorization:'Bearer '+state.accessToken,'Content-Type':'application/json'},
       body:JSON.stringify({values:[[p2t,cfg.p2label,p2gps,kesto,'valmis']]})});
     return true;
@@ -299,11 +300,24 @@ async function updateKeskenToValmis(round){
 }
 
 async function ensureKirjauksetSheet(){
-  const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+SHEET_K+'!A1',
+  // Tarkista onko Kirjaukset-välilehti olemassa, luo tarvittaessa
+  try{
+    const sr=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID,
+      {headers:{Authorization:'Bearer '+state.accessToken}});
+    const sd=await sr.json();
+    const hasSheet=(sd.sheets||[]).some(function(s){return s.properties.title===SHEET_K;});
+    if(!hasSheet){
+      await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+':batchUpdate',
+        {method:'POST',headers:{Authorization:'Bearer '+state.accessToken,'Content-Type':'application/json'},
+        body:JSON.stringify({requests:[{addSheet:{properties:{title:SHEET_K}}}]})});
+    }
+  }catch(e){}
+  // Varmista otsikkorivi
+  const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+encodeURIComponent(SHEET_K)+'!A1',
     {headers:{Authorization:'Bearer '+state.accessToken}});
   const d=await r.json();
   if(d.values&&d.values[0])return;
-  await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+SHEET_K+'!A1?valueInputOption=USER_ENTERED',
+  await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+encodeURIComponent(SHEET_K)+'!A1?valueInputOption=USER_ENTERED',
     {method:'PUT',headers:{Authorization:'Bearer '+state.accessToken,'Content-Type':'application/json'},
     body:JSON.stringify({values:[['Aikaleima','Kohde','Nimi','Sahkoposti','Piste 1 aika','Piste 1','Piste 1 GPS','Piste 2 aika','Piste 2','Piste 2 GPS','Kesto','Tila']]})});
 }
@@ -348,7 +362,11 @@ function getGPS(cb){
   if(!navigator.geolocation){cb(null);return;}
   navigator.geolocation.getCurrentPosition(
     function(p){cb({lat:p.coords.latitude.toFixed(6),lon:p.coords.longitude.toFixed(6),acc:Math.round(p.coords.accuracy)});},
-    function(){cb(null);},{enableHighAccuracy:true,timeout:8000});
+    function(){cb(null);},{enableHighAccuracy:true,timeout:8000,maximumAge:0});
+}
+
+function getGPSPromise(){
+  return new Promise(function(resolve){getGPS(resolve);});
 }
 
 function handleAutoPoint(){
@@ -358,8 +376,15 @@ function handleAutoPoint(){
   if(!point)return;
   const ts=Date.now();
   const entry={ts:ts,user:(state.user&&state.user.email)||'tuntematon',name:(state.user&&state.user.name)||'',gps:null};
-  getGPS(function(gps){entry.gps=gps;});
-  processPoint(point,entry,ts);
+  // Näytetään latausviesti
+  state.scanOk=point==='P1'?'P1':'P2_waiting';
+  state.tab='kierros';
+  render();
+  // Haetaan GPS ja prosessoidaan vasta kun saatu (max 8s)
+  getGPSPromise().then(function(gps){
+    entry.gps=gps;
+    processPoint(point,entry,ts);
+  });
 }
 
 function handleQR(data){
@@ -376,8 +401,10 @@ function handleQR(data){
     stopCamera();
     const ts=Date.now();
     const entry={ts:ts,user:(state.user&&state.user.email)||'tuntematon',name:(state.user&&state.user.name)||'',gps:null};
-    getGPS(function(gps){entry.gps=gps;});
-    processPoint(point,entry,ts);
+    getGPSPromise().then(function(gps){
+      entry.gps=gps;
+      processPoint(point,entry,ts);
+    });
   }catch(e){stopCamera();state.scanError='Tuntematon QR-koodi.';render();}
 }
 
@@ -436,22 +463,44 @@ async function changeToken(){
 // ── APUFUNKTIOT ──────────────────────────────────
 function fmt(ts){
   if(!ts)return '—';
-  if(typeof ts==='string'&&isNaN(Number(ts)))return ts;
-  return new Date(Number(ts)).toLocaleString('fi-FI',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  // Jos on jo fi-FI muodossa (sisältää pisteitä tai pilkkuja päivämäärässä)
+  if(typeof ts==='string'&&(ts.indexOf('.')!==-1||ts.indexOf('klo')!==-1))return ts;
+  // Muutetaan numeroksi jos merkkijono
+  const n=Number(ts);
+  if(isNaN(n)||n===0)return ts;
+  return new Date(n).toLocaleString('fi-FI',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
 }
 function durStr(a,b){
   if(!a||!b)return '—';
   const m=Math.round(Math.abs(b-a)/60000);
   return m<60?m+' min':Math.floor(m/60)+' h '+(m%60)+' min';
 }
+function parseTs(ts){
+  if(!ts)return 0;
+  if(typeof ts==='number')return ts;
+  const n=Number(ts);
+  if(!isNaN(n)&&n>1000000000000)return n; // ms aikaleima
+  // fi-FI muoto: "15.05.2026 klo 01.03.55" tai "15.5.2026 klo 1.03"
+  try{
+    const s=String(ts).replace(' klo ',' ').replace(/\./g,function(m,o,str){
+      // Korvataan pisteet oikeissa kohdissa
+      return o<6?'-':o<9?'-':':';
+    });
+    const d=new Date(ts);
+    if(!isNaN(d.getTime()))return d.getTime();
+  }catch(e){}
+  return 0;
+}
+
 function hoursSinceLast(){
   const done=state.rounds.filter(function(r){return r.p1&&r.p2&&r.status!=='kesken';});
   if(!done.length)return null;
   let latest=0;
   done.forEach(function(r){
-    const t=r.sheetRow?new Date(r.p2.ts).getTime():Math.max(r.p1.ts,r.p2.ts);
+    const t=parseTs(r.p2&&r.p2.ts);
     if(t>latest)latest=t;
   });
+  if(!latest)return null;
   return (Date.now()-latest)/3600000;
 }
 function cancelRound(){stopCamera();state.current=null;localStorage.removeItem('sc_current4');state.scanError=null;render();}
@@ -589,21 +638,37 @@ function renderKierros(){
 }
 
 function renderHistoria(){
-  const done=state.rounds.filter(function(r){return r.p1&&r.p2&&r.status!=='kesken';});
-  const kesken=state.rounds.filter(function(r){return r.status==='kesken'||(r.p1&&!r.p2)||(!r.p1&&r.p2);});
+  // Suodatetaan: näytetään vain valmis-kierrokset ja aidosti kesken olevat
+  // (poistetaan kesken-rivit joille on olemassa valmis-versio samalla id:llä)
+  const valmiit=state.rounds.filter(function(r){return r.p1&&r.p2&&r.status==='valmis';});
+  const valmisIds=valmiit.map(function(r){return r.id;});
+  const aidostiKesken=state.rounds.filter(function(r){
+    return r.status==='kesken'&&valmisIds.indexOf(r.id)===-1&&(r.p1||r.p2);
+  });
+  // Myös paikallisesti kesken oleva
+  const paikallinenKesken=state.current&&(state.current.p1||state.current.p2)?[state.current]:[];
   let h='<div class="action-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">'+
-    '<div class="card-title" style="margin:0">Historia — '+done.length+' kierrosta</div>'+
-    (done.length>0?'<button class="btn btn-sm" onclick="exportCSV()">&#8595; CSV</button>':'')+
+    '<div class="card-title" style="margin:0">Historia — '+valmiit.length+' kierrosta</div>'+
+    (valmiit.length>0?'<button class="btn btn-sm" onclick="exportCSV()">&#8595; CSV</button>':'')+
     '</div>';
-  if(!done.length&&!kesken.length)h+='<div class="empty">Ei viela kierroksia</div>';
-  kesken.forEach(function(r){
+  if(!valmiit.length&&!aidostiKesken.length&&!paikallinenKesken.length)h+='<div class="empty">Ei viela kierroksia</div>';
+
+  // Kesken olevat (paikalliset ensin)
+  paikallinenKesken.forEach(function(r){
+    const e=r.p1||r.p2;
+    h+='<div class="history-item"><div class="history-head"><div class="history-num">Kesken ⏸</div><div style="font-size:11px;color:var(--amber)">paikallinen</div></div>'+
+      '<div class="history-row">'+(r.p1?'▶ '+fmt(r.p1.ts)+' (piste 1)':'■ '+fmt(r.p2.ts)+' (piste 2)')+'</div>'+
+      '<div class="history-user">'+(e&&e.user?e.user:'')+'</div></div>';
+  });
+  aidostiKesken.forEach(function(r){
     const e=r.p1||r.p2;
     h+='<div class="history-item"><div class="history-head"><div class="history-num">Kesken ⏸</div></div>'+
       '<div class="history-row">'+(r.p1?'▶ '+fmt(r.p1.ts)+' (piste 1)':'■ '+fmt(r.p2.ts)+' (piste 2)')+'</div>'+
       '<div class="history-user">'+(e&&e.user?e.user:'')+'</div></div>';
   });
-  done.forEach(function(r,i){
-    const n=done.length-i;
+
+  valmiit.forEach(function(r,i){
+    const n=valmiit.length-i;
     const kesto=r.kesto||(!r.sheetRow&&r.p1&&r.p2?durStr(r.p1.ts,r.p2.ts):'—');
     h+='<div class="history-item"><div class="history-head"><div class="history-num">Kierros #'+n+'</div><div class="history-dur">'+kesto+'</div></div>'+
       '<div class="history-row">&#9654; '+fmt(r.p1&&r.p1.ts)+'</div>'+
