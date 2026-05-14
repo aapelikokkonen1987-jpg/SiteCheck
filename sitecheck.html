@@ -7,1095 +7,646 @@
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
-
   :root {
-    --bg: #0f0f0f;
-    --bg2: #181818;
-    --bg3: #222222;
-    --border: #2a2a2a;
-    --border2: #333333;
-    --text: #f0ede8;
-    --text2: #888880;
-    --text3: #555550;
-    --green: #4ade80;
-    --green-dim: #166534;
-    --green-bg: #0d2818;
-    --blue: #60a5fa;
-    --blue-bg: #0d1f35;
-    --amber: #fbbf24;
-    --amber-bg: #2d1f00;
-    --red: #f87171;
-    --red-bg: #2d0d0d;
-    --radius: 12px;
-    --radius-sm: 8px;
+    --bg:#0f0f0f;--bg2:#181818;--bg3:#222222;--border:#2a2a2a;--border2:#333333;
+    --text:#f0ede8;--text2:#888880;--text3:#555550;
+    --green:#4ade80;--green-dim:#166534;--green-bg:#0d2818;
+    --blue:#60a5fa;--blue-bg:#0d1f35;
+    --amber:#fbbf24;--amber-bg:#2d1f00;
+    --red:#f87171;--red-bg:#2d0d0d;
+    --radius:12px;--radius-sm:8px;
   }
-
-  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-
-  body {
-    font-family: 'DM Sans', sans-serif;
-    background: var(--bg);
-    color: var(--text);
-    min-height: 100vh;
-    max-width: 480px;
-    margin: 0 auto;
-  }
-
-  /* Header */
-  .header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 20px 20px 0;
-  }
-  .logo {
-    font-family: 'DM Mono', monospace;
-    font-size: 15px;
-    font-weight: 500;
-    letter-spacing: 0.08em;
-    color: var(--text);
-  }
-  .logo span { color: var(--green); }
-  .user-chip {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    background: var(--bg3);
-    border: 1px solid var(--border2);
-    border-radius: 99px;
-    padding: 5px 12px 5px 5px;
-    font-size: 12px;
-    color: var(--text2);
-    cursor: pointer;
-  }
-  .user-chip img {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-  }
-  .user-chip-placeholder {
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
-    background: var(--border2);
-  }
-
-  /* Main content */
-  .content { padding: 20px; }
-
-  /* Status bar */
-  .status-bar {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 14px 16px;
-    margin-bottom: 16px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-  }
-  .status-label { font-size: 12px; color: var(--text3); margin-bottom: 3px; }
-  .status-value { font-size: 14px; font-weight: 500; }
-  .status-badge {
-    font-size: 11px;
-    font-family: 'DM Mono', monospace;
-    padding: 4px 10px;
-    border-radius: 99px;
-    font-weight: 500;
-  }
-  .badge-ok { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-dim); }
-  .badge-warn { background: var(--amber-bg); color: var(--amber); border: 1px solid #92400e; }
-  .badge-alert { background: var(--red-bg); color: var(--red); border: 1px solid #7f1d1d; }
-  .badge-idle { background: var(--bg3); color: var(--text3); border: 1px solid var(--border2); }
-
-  /* Alert boxes */
-  .alert { border-radius: var(--radius-sm); padding: 12px 14px; margin-bottom: 14px; font-size: 13px; display: flex; gap: 10px; align-items: flex-start; line-height: 1.5; }
-  .alert-red { background: var(--red-bg); color: var(--red); border: 1px solid #7f1d1d; }
-  .alert-amber { background: var(--amber-bg); color: var(--amber); border: 1px solid #92400e; }
-  .alert-green { background: var(--green-bg); color: var(--green); border: 1px solid var(--green-dim); }
-  .alert-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
-
-  /* Login screen */
-  .login-screen {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    min-height: 70vh;
-    text-align: center;
-    padding: 40px 20px;
-  }
-  .login-logo {
-    font-family: 'DM Mono', monospace;
-    font-size: 32px;
-    font-weight: 500;
-    margin-bottom: 8px;
-  }
-  .login-logo span { color: var(--green); }
-  .login-sub { color: var(--text2); font-size: 14px; margin-bottom: 40px; line-height: 1.6; }
-  .google-btn {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    background: var(--text);
-    color: #1a1a1a;
-    border: none;
-    border-radius: var(--radius-sm);
-    padding: 13px 24px;
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: opacity 0.15s;
-  }
-  .google-btn:hover { opacity: 0.9; }
-  .google-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
-
-  /* Main action card */
-  .action-card {
-    background: var(--bg2);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    margin-bottom: 16px;
-  }
-  .card-title {
-    font-size: 11px;
-    font-family: 'DM Mono', monospace;
-    color: var(--text3);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    margin-bottom: 16px;
-  }
-
-  /* Steps */
-  .step {
-    display: flex;
-    gap: 14px;
-    align-items: flex-start;
-    padding: 12px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    margin-bottom: 8px;
-    transition: border-color 0.2s;
-  }
-  .step:last-child { margin-bottom: 0; }
-  .step.step-done { border-color: var(--green-dim); background: var(--green-bg); }
-  .step.step-active { border-color: #1d4ed8; background: var(--blue-bg); }
-  .step.step-waiting { opacity: 0.4; }
-  .step-num {
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    border: 1px solid var(--border2);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 12px;
-    font-family: 'DM Mono', monospace;
-    flex-shrink: 0;
-    color: var(--text2);
-  }
-  .step-done .step-num { background: var(--green); color: #0d2818; border-color: var(--green); font-weight: 600; }
-  .step-active .step-num { background: var(--blue); color: var(--blue-bg); border-color: var(--blue); }
-  .step-body { flex: 1; }
-  .step-title { font-size: 14px; font-weight: 500; color: var(--text); margin-bottom: 2px; }
-  .step-done .step-title { color: var(--green); }
-  .step-active .step-title { color: var(--blue); }
-  .step-meta { font-size: 12px; color: var(--text3); font-family: 'DM Mono', monospace; }
-  .step-done .step-meta { color: #4ade8099; }
-  .step-active .step-meta { color: #60a5fa99; }
-
-  /* Buttons */
-  .btn {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 8px;
-    width: 100%;
-    padding: 14px;
-    border-radius: var(--radius-sm);
-    border: 1px solid var(--border2);
-    background: var(--bg3);
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 15px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: all 0.15s;
-    margin-top: 14px;
-  }
-  .btn:hover { background: #2a2a2a; border-color: #444; }
-  .btn:active { transform: scale(0.98); }
-  .btn-green {
-    background: var(--green);
-    color: #0d2818;
-    border-color: var(--green);
-    font-weight: 600;
-  }
-  .btn-green:hover { background: #6ee7a0; border-color: #6ee7a0; }
-  .btn-blue {
-    background: var(--blue);
-    color: var(--blue-bg);
-    border-color: var(--blue);
-    font-weight: 600;
-  }
-  .btn-blue:hover { background: #93c5fd; }
-  .btn-sm {
-    width: auto;
-    padding: 8px 14px;
-    font-size: 13px;
-    margin-top: 0;
-  }
-  .btn-danger {
-    background: var(--red-bg);
-    color: var(--red);
-    border-color: #7f1d1d;
-    width: auto;
-    padding: 8px 14px;
-    font-size: 13px;
-    margin-top: 0;
-  }
-  .btn-row { display: flex; gap: 8px; margin-top: 14px; }
-
-  /* Scanner */
-  .scanner-wrap {
-    position: relative;
-    width: 100%;
-    border-radius: var(--radius-sm);
-    overflow: hidden;
-    background: #000;
-    aspect-ratio: 1;
-    margin-bottom: 12px;
-  }
-  .scanner-wrap video { width: 100%; height: 100%; object-fit: cover; display: block; }
-  .scan-overlay {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-  .scan-box {
-    width: 58%;
-    aspect-ratio: 1;
-    border: 2px solid var(--green);
-    border-radius: 10px;
-    box-shadow: 0 0 0 9999px rgba(0,0,0,0.55);
-    animation: pulse-border 2s ease-in-out infinite;
-  }
-  @keyframes pulse-border {
-    0%, 100% { border-color: var(--green); box-shadow: 0 0 0 9999px rgba(0,0,0,0.55), 0 0 20px rgba(74,222,128,0.2); }
-    50% { border-color: #6ee7a0; box-shadow: 0 0 0 9999px rgba(0,0,0,0.55), 0 0 30px rgba(74,222,128,0.4); }
-  }
-  .scan-label {
-    position: absolute;
-    bottom: 16px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 12px;
-    font-family: 'DM Mono', monospace;
-    color: rgba(255,255,255,0.7);
-    white-space: nowrap;
-    background: rgba(0,0,0,0.5);
-    padding: 4px 12px;
-    border-radius: 99px;
-  }
-
-  /* Success flash */
-  .success-flash {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    padding: 40px 20px;
-    text-align: center;
-  }
-  .success-icon {
-    width: 64px;
-    height: 64px;
-    border-radius: 50%;
-    background: var(--green-bg);
-    border: 2px solid var(--green);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 28px;
-    margin-bottom: 16px;
-    animation: pop 0.3s ease-out;
-  }
-  @keyframes pop {
-    0% { transform: scale(0.5); opacity: 0; }
-    70% { transform: scale(1.15); }
-    100% { transform: scale(1); opacity: 1; }
-  }
-  .success-title { font-size: 20px; font-weight: 600; color: var(--green); margin-bottom: 6px; }
-  .success-sub { font-size: 13px; color: var(--text2); font-family: 'DM Mono', monospace; }
-
-  /* History */
-  .history-item {
-    border-bottom: 1px solid var(--border);
-    padding: 12px 0;
-  }
-  .history-item:last-child { border-bottom: none; padding-bottom: 0; }
-  .history-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 4px; }
-  .history-num { font-size: 14px; font-weight: 500; }
-  .history-dur { font-size: 12px; font-family: 'DM Mono', monospace; color: var(--green); }
-  .history-row { font-size: 12px; color: var(--text3); font-family: 'DM Mono', monospace; margin-top: 2px; }
-  .history-user { font-size: 11px; color: var(--text3); margin-top: 3px; }
-
-  /* Tabs */
-  .tabs { display: flex; gap: 4px; margin-bottom: 16px; background: var(--bg2); padding: 4px; border-radius: var(--radius-sm); border: 1px solid var(--border); }
-  .tab {
-    flex: 1;
-    padding: 8px;
-    border-radius: 6px;
-    background: transparent;
-    color: var(--text3);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 12px;
-    font-weight: 500;
-    border: none;
-    cursor: pointer;
-    transition: all 0.15s;
-    text-align: center;
-  }
-  .tab.active { background: var(--bg3); color: var(--text); border: 1px solid var(--border2); }
-
-  /* Settings */
-  .field { margin-bottom: 14px; }
-  .field label { display: block; font-size: 11px; font-family: 'DM Mono', monospace; color: var(--text3); margin-bottom: 6px; letter-spacing: 0.05em; text-transform: uppercase; }
-  .field input {
-    width: 100%;
-    background: var(--bg3);
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    padding: 10px 12px;
-    color: var(--text);
-    font-family: 'DM Sans', sans-serif;
-    font-size: 14px;
-  }
-  .field input:focus { outline: none; border-color: var(--blue); }
-  .field input[type=number] { width: 100px; }
-
-  /* QR codes */
-  .qr-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }
-  .qr-card {
-    background: var(--bg3);
-    border: 1px solid var(--border2);
-    border-radius: var(--radius-sm);
-    padding: 16px 12px;
-    text-align: center;
-  }
-  .qr-card canvas { display: block; margin: 0 auto 10px; border-radius: 6px; }
-  .qr-card-label { font-size: 13px; font-weight: 500; margin-bottom: 3px; }
-  .qr-card-sub { font-size: 11px; color: var(--text3); line-height: 1.4; }
-
-  /* Spinner */
-  .spinner { display: inline-block; width: 16px; height: 16px; border: 2px solid var(--border2); border-top-color: var(--green); border-radius: 50%; animation: spin 0.7s linear infinite; }
-  @keyframes spin { to { transform: rotate(360deg); } }
-
-  .empty { text-align: center; padding: 32px 0; color: var(--text3); font-size: 14px; }
-  .mono { font-family: 'DM Mono', monospace; font-size: 12px; }
-  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+  *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+  body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;max-width:480px;margin:0 auto;}
+  .header{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 0;}
+  .logo{font-family:'DM Mono',monospace;font-size:15px;font-weight:500;letter-spacing:.08em;color:var(--text);}
+  .logo span{color:var(--green);}
+  .user-chip{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border2);border-radius:99px;padding:5px 12px 5px 5px;font-size:12px;color:var(--text2);cursor:pointer;}
+  .user-chip img{width:24px;height:24px;border-radius:50%;}
+  .content{padding:20px;}
+  .status-bar{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;}
+  .status-label{font-size:12px;color:var(--text3);margin-bottom:3px;}
+  .status-value{font-size:14px;font-weight:500;}
+  .status-badge{font-size:11px;font-family:'DM Mono',monospace;padding:4px 10px;border-radius:99px;font-weight:500;}
+  .badge-ok{background:var(--green-bg);color:var(--green);border:1px solid var(--green-dim);}
+  .badge-warn{background:var(--amber-bg);color:var(--amber);border:1px solid #92400e;}
+  .badge-alert{background:var(--red-bg);color:var(--red);border:1px solid #7f1d1d;}
+  .badge-idle{background:var(--bg3);color:var(--text3);border:1px solid var(--border2);}
+  .alert{border-radius:var(--radius-sm);padding:12px 14px;margin-bottom:14px;font-size:13px;display:flex;gap:10px;align-items:flex-start;line-height:1.5;}
+  .alert-red{background:var(--red-bg);color:var(--red);border:1px solid #7f1d1d;}
+  .alert-amber{background:var(--amber-bg);color:var(--amber);border:1px solid #92400e;}
+  .alert-green{background:var(--green-bg);color:var(--green);border:1px solid var(--green-dim);}
+  .alert-icon{font-size:16px;flex-shrink:0;margin-top:1px;}
+  .login-screen{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:70vh;text-align:center;padding:40px 20px;}
+  .login-logo{font-family:'DM Mono',monospace;font-size:32px;font-weight:500;margin-bottom:8px;}
+  .login-logo span{color:var(--green);}
+  .login-sub{color:var(--text2);font-size:14px;margin-bottom:40px;line-height:1.6;}
+  .action-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:20px;margin-bottom:16px;}
+  .card-title{font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);letter-spacing:.1em;text-transform:uppercase;margin-bottom:16px;}
+  .step{display:flex;gap:14px;align-items:flex-start;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);margin-bottom:8px;}
+  .step:last-child{margin-bottom:0;}
+  .step.step-done{border-color:var(--green-dim);background:var(--green-bg);}
+  .step.step-active{border-color:#1d4ed8;background:var(--blue-bg);}
+  .step.step-waiting{opacity:.4;}
+  .step-num{width:28px;height:28px;border-radius:50%;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-size:12px;font-family:'DM Mono',monospace;flex-shrink:0;color:var(--text2);}
+  .step-done .step-num{background:var(--green);color:#0d2818;border-color:var(--green);font-weight:600;}
+  .step-active .step-num{background:var(--blue);color:var(--blue-bg);border-color:var(--blue);}
+  .step-body{flex:1;}
+  .step-title{font-size:14px;font-weight:500;color:var(--text);margin-bottom:2px;}
+  .step-done .step-title{color:var(--green);}
+  .step-active .step-title{color:var(--blue);}
+  .step-meta{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;}
+  .step-done .step-meta{color:#4ade8099;}
+  .step-active .step-meta{color:#60a5fa99;}
+  .btn{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:14px;border-radius:var(--radius-sm);border:1px solid var(--border2);background:var(--bg3);color:var(--text);font-family:'DM Sans',sans-serif;font-size:15px;font-weight:500;cursor:pointer;transition:all .15s;margin-top:14px;}
+  .btn:hover{background:#2a2a2a;border-color:#444;}
+  .btn:active{transform:scale(.98);}
+  .btn-green{background:var(--green);color:#0d2818;border-color:var(--green);font-weight:600;}
+  .btn-green:hover{background:#6ee7a0;}
+  .btn-blue{background:var(--blue);color:var(--blue-bg);border-color:var(--blue);font-weight:600;}
+  .btn-blue:hover{background:#93c5fd;}
+  .btn-sm{width:auto;padding:8px 14px;font-size:13px;margin-top:0;}
+  .btn-danger{background:var(--red-bg);color:var(--red);border-color:#7f1d1d;width:auto;padding:8px 14px;font-size:13px;margin-top:0;}
+  .btn-row{display:flex;gap:8px;margin-top:14px;}
+  .scanner-wrap{position:relative;width:100%;border-radius:var(--radius-sm);overflow:hidden;background:#000;aspect-ratio:1;margin-bottom:12px;}
+  .scanner-wrap video{width:100%;height:100%;object-fit:cover;display:block;}
+  .scan-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+  .scan-box{width:58%;aspect-ratio:1;border:2px solid var(--green);border-radius:10px;box-shadow:0 0 0 9999px rgba(0,0,0,.55);animation:pulse-border 2s ease-in-out infinite;}
+  @keyframes pulse-border{0%,100%{border-color:var(--green);box-shadow:0 0 0 9999px rgba(0,0,0,.55),0 0 20px rgba(74,222,128,.2);}50%{border-color:#6ee7a0;box-shadow:0 0 0 9999px rgba(0,0,0,.55),0 0 30px rgba(74,222,128,.4);}}
+  .scan-label{position:absolute;bottom:16px;left:50%;transform:translateX(-50%);font-size:12px;font-family:'DM Mono',monospace;color:rgba(255,255,255,.7);white-space:nowrap;background:rgba(0,0,0,.5);padding:4px 12px;border-radius:99px;}
+  .success-flash{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:40px 20px;text-align:center;}
+  .success-icon{width:64px;height:64px;border-radius:50%;background:var(--green-bg);border:2px solid var(--green);display:flex;align-items:center;justify-content:center;font-size:28px;margin-bottom:16px;animation:pop .3s ease-out;}
+  @keyframes pop{0%{transform:scale(.5);opacity:0;}70%{transform:scale(1.15);}100%{transform:scale(1);opacity:1;}}
+  .success-title{font-size:20px;font-weight:600;color:var(--green);margin-bottom:6px;}
+  .success-sub{font-size:13px;color:var(--text2);font-family:'DM Mono',monospace;}
+  .history-item{border-bottom:1px solid var(--border);padding:12px 0;}
+  .history-item:last-child{border-bottom:none;padding-bottom:0;}
+  .history-head{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:4px;}
+  .history-num{font-size:14px;font-weight:500;}
+  .history-dur{font-size:12px;font-family:'DM Mono',monospace;color:var(--green);}
+  .history-row{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;margin-top:2px;}
+  .history-user{font-size:11px;color:var(--text3);margin-top:3px;}
+  .tabs{display:flex;gap:4px;margin-bottom:16px;background:var(--bg2);padding:4px;border-radius:var(--radius-sm);border:1px solid var(--border);}
+  .tab{flex:1;padding:8px;border-radius:6px;background:transparent;color:var(--text3);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;border:none;cursor:pointer;transition:all .15s;text-align:center;}
+  .tab.active{background:var(--bg3);color:var(--text);border:1px solid var(--border2);}
+  .field{margin-bottom:14px;}
+  .field label{display:block;font-size:11px;font-family:'DM Mono',monospace;color:var(--text3);margin-bottom:6px;letter-spacing:.05em;text-transform:uppercase;}
+  .field input{width:100%;background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 12px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;}
+  .field input:focus{outline:none;border-color:var(--blue);}
+  .field input[type=number]{width:100px;}
+  .qr-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+  .qr-card{background:var(--bg3);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:16px 12px;text-align:center;}
+  .qr-card-label{font-size:13px;font-weight:500;margin-bottom:3px;}
+  .qr-card-sub{font-size:11px;color:var(--text3);line-height:1.4;}
+  .spinner{display:inline-block;width:16px;height:16px;border:2px solid var(--border2);border-top-color:var(--green);border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;}
+  @keyframes spin{to{transform:rotate(360deg);}}
+  .empty{text-align:center;padding:32px 0;color:var(--text3);font-size:14px;}
 </style>
 </head>
 <body>
-
 <div id="app"></div>
-
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <script>
-// ═══════════════════════════════════════════
-// KONFIGURAATIO — muokkaa nämä
-// ═══════════════════════════════════════════
 const CLIENT_ID = '56096275734-0v2hap6id06ls3a1i20j37mnpvp9a7qa.apps.googleusercontent.com';
 const SHEETS_ID = '1PzbE4VDt6rAIhQR9c3v78YyK1tSjFzL0DJVC5M8Nly4';
 const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
+const SHEET_K = 'Kirjaukset';
+const SHEET_T = 'Token';
 
-// ═══════════════════════════════════════════
-// TILA
-// ═══════════════════════════════════════════
-const SK = 'sc_rounds_v2';
-const SET_K = 'sc_settings_v2';
+function lsGet(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}}
+function lsSet(k,v){localStorage.setItem(k,JSON.stringify(v));}
 
-function loadRounds() { try { return JSON.parse(localStorage.getItem(SK)||'[]'); } catch(e) { return []; } }
-function saveRounds(r) { localStorage.setItem(SK, JSON.stringify(r)); }
-function loadSettings() { try { return JSON.parse(localStorage.getItem(SET_K)||'null'); } catch(e) { return null; } }
-function saveSettings(s) { localStorage.setItem(SET_K, JSON.stringify(s)); }
-
-function defaultSettings() {
-  return {
-    siteName: 'Biokaasulaitos',
-    p1label: 'Sisäänkäynti / pumppaamohuone',
-    p2label: 'CHP-huone / loppupiste',
-    maxInterval: 24,
-    token: Math.random().toString(36).slice(2,10).toUpperCase()
-  };
-}
+function loadSettings(){return lsGet('sc_s4');}
+function saveSettings(s){lsSet('sc_s4',s);}
+function defaultSettings(){return{siteName:'Biokaasulaitos',p1label:'Sisaankaynti / pumppaamohuone',p2label:'CHP-huone / loppupiste',maxInterval:24,token:randToken()};}
+function randToken(){return Math.random().toString(36).slice(2,10).toUpperCase();}
 
 let cfg = loadSettings() || defaultSettings();
-if (!cfg.token) { cfg.token = Math.random().toString(36).slice(2,10).toUpperCase(); saveSettings(cfg); }
+if(!cfg.token){cfg.token=randToken();saveSettings(cfg);}
 
-let state = {
-  tab: 'kierros',
-  user: (function() { try { return JSON.parse(localStorage.getItem('sc_user')); } catch(e) { return null; } })(),
-  accessToken: null,
-  tokenExpiry: 0,
-  rounds: loadRounds(),
-  current: null,
-  scanning: false,
-  scanTarget: null,
-  scanError: null,
-  scanOk: null,
-  videoStream: null,
-  scanInterval: null,
-  saving: false,
-  saveError: null,
-  initialized: false,
-};
-
-// URL-parametri: ?point=1 tai ?point=2
 const urlParams = new URLSearchParams(window.location.search);
 const autoPoint = urlParams.get('point');
+const urlToken = urlParams.get('token');
 
-// ═══════════════════════════════════════════
-// GOOGLE AUTH
-// ═══════════════════════════════════════════
+let state = {
+  tab:'kierros',
+  user:lsGet('sc_user'),
+  accessToken:null,
+  tokenExpiry:0,
+  rounds:lsGet('sc_rounds4')||[],
+  current:lsGet('sc_current4'),
+  scanning:false,
+  scanError:null,
+  scanOk:null,
+  videoStream:null,
+  scanInterval:null,
+  saving:false,
+  saveError:null,
+  initialized:false,
+  loadingSheets:false,
+  tokenSaving:false,
+};
+
 let tokenClient;
 
-function initGoogle() {
-  if (!window.google) { setTimeout(initGoogle, 200); return; }
-  tokenClient = google.accounts.oauth2.initTokenClient({
-    client_id: CLIENT_ID,
-    scope: SCOPES,
-    callback: (resp) => {
-      if (resp.error) { state.saveError = 'Kirjautuminen epäonnistui: ' + resp.error; render(); return; }
-      state.accessToken = resp.access_token;
-      state.tokenExpiry = Date.now() + (resp.expires_in * 1000) - 60000;
-      render();
-      // Käsittele URL-parametri kun token on saatu
-      if (autoPoint && state.user) handleAutoPoint();
+function initGoogle(){
+  if(!window.google){setTimeout(initGoogle,200);return;}
+  tokenClient=google.accounts.oauth2.initTokenClient({
+    client_id:CLIENT_ID,
+    scope:SCOPES,
+    callback:function(resp){
+      if(resp.error){state.saveError='Kirjautuminen epaonnistui: '+resp.error;render();return;}
+      state.accessToken=resp.access_token;
+      state.tokenExpiry=Date.now()+(resp.expires_in*1000)-60000;
+      onTokenReady();
     }
   });
-  state.initialized = true;
-  render();
+  state.initialized=true;
+  if(state.user){requestToken();}
+  else{render();}
 }
 
-function handleCredentialResponse(response) {
-  const payload = JSON.parse(atob(response.credential.split('.')[1]));
-  state.user = { name: payload.name, email: payload.email, picture: payload.picture };
-  // Tallennetaan käyttäjä pysyvästi
-  localStorage.setItem('sc_user', JSON.stringify(state.user));
+function onTokenReady(){
+  render();
+  loadFromSheets().then(function(){
+    render();
+    if(autoPoint)handleAutoPoint();
+  });
+}
+
+function handleCredentialResponse(response){
+  const payload=JSON.parse(atob(response.credential.split('.')[1]));
+  state.user={name:payload.name,email:payload.email,picture:payload.picture};
+  lsSet('sc_user',state.user);
   render();
   requestToken();
-  // Käsittele URL-parametri heti kirjautumisen jälkeen
-  if (autoPoint) setTimeout(handleAutoPoint, 500);
 }
 
-function requestToken() {
-  if (!tokenClient) return;
-  tokenClient.requestAccessToken({ prompt: '' });
-}
+function requestToken(){if(!tokenClient)return;tokenClient.requestAccessToken({prompt:''});}
 
-function ensureToken() {
-  if (state.accessToken && Date.now() < state.tokenExpiry) return Promise.resolve();
-  return new Promise((res) => {
-    const orig = tokenClient.callback;
-    tokenClient.callback = (resp) => { orig(resp); res(); tokenClient.callback = orig; };
-    tokenClient.requestAccessToken({ prompt: '' });
+function ensureToken(){
+  if(state.accessToken&&Date.now()<state.tokenExpiry)return Promise.resolve();
+  return new Promise(function(res){
+    const orig=tokenClient.callback;
+    tokenClient.callback=function(resp){orig(resp);res();tokenClient.callback=orig;};
+    tokenClient.requestAccessToken({prompt:''});
   });
 }
 
-function signOut() {
-  if (state.accessToken) google.accounts.oauth2.revoke(state.accessToken);
-  state.user = null;
-  state.accessToken = null;
-  state.current = null;
-  localStorage.removeItem('sc_user');
-  stopCamera();
-  render();
+function signOut(){
+  if(state.accessToken)google.accounts.oauth2.revoke(state.accessToken);
+  state.user=null;state.accessToken=null;state.current=null;state.rounds=[];
+  localStorage.removeItem('sc_user');localStorage.removeItem('sc_current4');
+  stopCamera();render();
 }
 
-// ═══════════════════════════════════════════
-// QR JA SKANNAUS
-// ═══════════════════════════════════════════
-function qrPayload(point) {
-  // QR-koodi avaa suoraan sovelluksen URL:iin oikealla pisteellä
-  const base = window.location.href.split('?')[0];
-  const num = point === 'P1' ? '1' : '2';
-  return base + '?point=' + num + '&token=' + cfg.token;
-}
-
-function stopCamera() {
-  if (state.scanInterval) { clearInterval(state.scanInterval); state.scanInterval = null; }
-  if (state.videoStream) { state.videoStream.getTracks().forEach(t => t.stop()); state.videoStream = null; }
-  state.scanning = false;
-}
-
-function startScan(point) {
-  state.scanTarget = point;
-  state.scanError = null;
-  state.scanOk = null;
-  state.scanning = true;
-  render();
-  setTimeout(() => {
-    const video = document.getElementById('qr-video');
-    if (!video) { stopCamera(); render(); return; }
-    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-      .then(stream => {
-        state.videoStream = stream;
-        video.srcObject = stream;
-        video.play();
-        const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        state.scanInterval = setInterval(() => {
-          if (video.readyState === video.HAVE_ENOUGH_DATA) {
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            ctx.drawImage(video, 0, 0);
-            const img = ctx.getImageData(0,0,canvas.width,canvas.height);
-            const code = jsQR(img.data, img.width, img.height);
-            if (code) handleQR(code.data, point);
-          }
-        }, 200);
-      })
-      .catch(e => {
-        state.scanning = false;
-        state.scanError = 'Kamera ei käytettävissä: ' + e.message;
-        render();
-      });
-  }, 100);
-}
-
-function handleAutoPoint() {
-  if (!autoPoint || !state.user) return;
-  const urlToken = urlParams.get('token');
-  if (urlToken && urlToken !== cfg.token) {
-    cfg.token = urlToken;
-    saveSettings(cfg);
-  }
-  const point = autoPoint === '1' ? 'P1' : autoPoint === '2' ? 'P2' : null;
-  if (!point) return;
-
-  // Haetaan GPS taustalla, kirjataan heti ilman odottamista
-  const ts = Date.now();
-  const entry = { ts, user: (state.user && state.user.email) || 'tuntematon', name: (state.user && state.user.name) || '', gps: null };
-
-  // GPS haetaan asynkronisesti — päivitetään entry kun saadaan
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      function(pos) {
-        entry.gps = {
-          lat: pos.coords.latitude.toFixed(6),
-          lon: pos.coords.longitude.toFixed(6),
-          acc: Math.round(pos.coords.accuracy)
-        };
-      },
-      function() { entry.gps = null; },
-      { enableHighAccuracy: true, timeout: 8000 }
-    );
-  }
-
-  if (point === 'P1') {
-    if (!state.current) state.current = { id: ts, p1: null, p2: null };
-    state.current.p1 = entry;
-    if (state.current.p2) { finishRound(); return; }
-    state.scanOk = 'P1';
-  } else {
-    if (!state.current) state.current = { id: ts, p1: null, p2: null };
-    state.current.p2 = entry;
-    if (state.current.p1) { finishRound(); return; }
-    state.scanOk = 'P2_waiting';
-  }
-  state.tab = 'kierros';
-  setTimeout(() => { state.scanOk = null; render(); }, 2500);
-  render();
-}
-
-function handleQR(data, expectedPoint) {
-  try {
-    let point, token;
-    // URL-muotoinen QR-koodi: ...?point=1&token=XXX
-    if (data.includes('?point=')) {
-      const u = new URL(data);
-      point = u.searchParams.get('point') === '1' ? 'P1' : 'P2';
-      token = u.searchParams.get('token');
-    } else {
-      // Vanha JSON-muoto (taaksepäin yhteensopivuus)
-      const parsed = JSON.parse(data);
-      point = parsed.point;
-      token = parsed.token;
-    }
-    if (token !== cfg.token) {
-      stopCamera();
-      state.scanError = 'Väärä QR-koodi — tämä koodi ei kuulu tähän kohteeseen.';
-      render(); return;
-    }
-    stopCamera();
-
-    const ts = Date.now();
-    const entry = { ts, user: (state.user && state.user.email) || 'tuntematon', name: (state.user && state.user.name) || '' };
-
-    if (point === 'P1') {
-      if (state.current && state.current.p1 && !state.current.p2) {
-        state.scanError = 'Piste 1 on jo skannattu — skannaa nyt piste 2.';
-        render(); return;
-      }
-      state.current = { id: ts, p1: entry, p2: null };
-      state.scanOk = 'P1';
-    } else if (point === 'P2') {
-      if (!state.current || !state.current.p1) {
-        // P2 skannattu ensin — tallennetaan odotukseen
-        state.current = { id: ts, p1: null, p2: entry };
-        state.scanOk = 'P2_waiting';
-      } else if (state.current.p1 && !state.current.p2) {
-        state.current.p2 = entry;
-        state.scanOk = 'P2';
-        finishRound();
-        return;
-      }
-    }
-
-    // Tarkista onko molemmat pisteet nyt — P2 ensin -tapaus
-    if (state.current && state.current.p2 && !state.current.p1 && point === 'P1') {
-      state.current.p1 = entry;
-      // järjestetään oikein
-      const tmp = state.current.p1;
-      state.current.p1 = state.current.p2;
-      state.current.p2 = tmp;
-      state.scanOk = 'P1';
-      finishRound();
-      return;
-    }
-
-    setTimeout(() => { state.scanOk = null; render(); }, 2500);
-    render();
-  } catch(e) {
-    stopCamera();
-    state.scanError = 'Tuntematon QR-koodi.';
-    render();
-  }
-}
-
-async function finishRound() {
-  const round = { ...state.current };
-  // Varmista järjestys aikaleiman mukaan
-  if (round.p1 && round.p2 && round.p1.ts > round.p2.ts) {
-    const tmp = round.p1; round.p1 = round.p2; round.p2 = tmp;
-  }
-  state.rounds.unshift(round);
-  saveRounds(state.rounds);
-  state.current = null;
-  state.scanOk = 'DONE';
-  state.saving = true;
-  render();
-
-  // Tallenna Sheetsiin
-  try {
+// ── SHEETS ──────────────────────────────────────
+async function loadFromSheets(){
+  state.loadingSheets=true;render();
+  try{
     await ensureToken();
-    await saveToSheets(round);
-    state.saving = false;
-  } catch (e) {
-    state.saving = false;
-    state.saveError = 'Sheets-tallennus epäonnistui: ' + e.message + ' (kierros tallennettu paikallisesti)';
-  }
+    await loadTokenFromSheet();
+    await loadHistoryFromSheet();
+  }catch(e){state.saveError='Sheets-luku epaonnistui: '+e.message;}
+  state.loadingSheets=false;
+}
 
-  setTimeout(() => { state.scanOk = null; render(); }, 3000);
+async function loadTokenFromSheet(){
+  try{
+    const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+SHEET_T+'!A2',
+      {headers:{Authorization:'Bearer '+state.accessToken}});
+    const d=await r.json();
+    if(d.values&&d.values[0]&&d.values[0][0]){
+      const t=d.values[0][0].trim();
+      if(t&&t!==cfg.token){cfg.token=t;saveSettings(cfg);}
+    }else{await writeTokenToSheet(cfg.token);}
+  }catch(e){await ensureTokenSheet();}
+}
+
+async function ensureTokenSheet(){
+  try{
+    const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID,
+      {headers:{Authorization:'Bearer '+state.accessToken}});
+    const d=await r.json();
+    const has=(d.sheets||[]).some(function(s){return s.properties.title===SHEET_T;});
+    if(!has){
+      await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+':batchUpdate',
+        {method:'POST',headers:{Authorization:'Bearer '+state.accessToken,'Content-Type':'application/json'},
+        body:JSON.stringify({requests:[{addSheet:{properties:{title:SHEET_T}}}]})});
+    }
+    await writeTokenToSheet(cfg.token);
+  }catch(e){}
+}
+
+async function writeTokenToSheet(token){
+  await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+SHEET_T+'!A1?valueInputOption=USER_ENTERED',
+    {method:'PUT',headers:{Authorization:'Bearer '+state.accessToken,'Content-Type':'application/json'},
+    body:JSON.stringify({values:[['Token'],[token],[''],['Muuta tokenia vain jos QR-koodit taytyy uusia.']]})});
+}
+
+async function loadHistoryFromSheet(){
+  const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+SHEET_K+'!A2:L500',
+    {headers:{Authorization:'Bearer '+state.accessToken}});
+  const d=await r.json();
+  if(!d.values||!d.values.length)return;
+  const rounds=[];
+  d.values.forEach(function(row){
+    if(row.length<5)return;
+    rounds.push({
+      id:row[0]||'',siteName:row[1]||'',sheetRow:true,
+      status:row[11]||'valmis',kesto:row[10]||'',
+      p1:row[4]?{ts:row[4],name:row[2]||'',user:row[3]||'',gpsStr:row[6]||''}:null,
+      p2:row[7]?{ts:row[7],name:row[2]||'',user:row[3]||'',gpsStr:row[9]||''}:null,
+    });
+  });
+  state.rounds=rounds;
+  lsSet('sc_rounds4',rounds);
+}
+
+async function appendToSheets(round,partial){
+  await ensureKirjauksetSheet();
+  const p1t=round.p1?(round.p1.tsF||fmt(round.p1.ts)):'—';
+  const p2t=round.p2?(round.p2.tsF||fmt(round.p2.ts)):'—';
+  const kesto=(round.p1&&round.p2&&!round.sheetRow)?durStr(round.p1.ts,round.p2.ts):(round.kesto||'—');
+  const user=(round.p1&&round.p1.user)||(round.p2&&round.p2.user)||'—';
+  const name=(round.p1&&round.p1.name)||(round.p2&&round.p2.name)||'—';
+  const p1gps=(round.p1&&round.p1.gps)?(round.p1.gps.lat+', '+round.p1.gps.lon+' (+-'+round.p1.gps.acc+'m)'):(round.p1&&round.p1.gpsStr?round.p1.gpsStr:'—');
+  const p2gps=(round.p2&&round.p2.gps)?(round.p2.gps.lat+', '+round.p2.gps.lon+' (+-'+round.p2.gps.acc+'m)'):(round.p2&&round.p2.gpsStr?round.p2.gpsStr:'—');
+  const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+SHEET_K+'!A:A:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS',
+    {method:'POST',headers:{Authorization:'Bearer '+state.accessToken,'Content-Type':'application/json'},
+    body:JSON.stringify({values:[[new Date(round.id).toLocaleString('fi-FI'),cfg.siteName,name,user,p1t,cfg.p1label,p1gps,p2t,cfg.p2label,p2gps,kesto,partial?'kesken':'valmis']]})});
+  if(!r.ok){const e=await r.json();throw new Error((e.error&&e.error.message)||r.status);}
+}
+
+async function updateKeskenToValmis(round){
+  try{
+    const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+SHEET_K+'!A:L',
+      {headers:{Authorization:'Bearer '+state.accessToken}});
+    const d=await r.json();
+    if(!d.values)return false;
+    const idStr=new Date(round.id).toLocaleString('fi-FI');
+    let rowIdx=-1;
+    d.values.forEach(function(row,i){if(row[0]===idStr&&row[11]==='kesken')rowIdx=i+1;});
+    if(rowIdx===-1)return false;
+    const p2t=fmt(round.p2.ts);
+    const kesto=durStr(round.p1.ts,round.p2.ts);
+    const p2gps=(round.p2&&round.p2.gps)?(round.p2.gps.lat+', '+round.p2.gps.lon+' (+-'+round.p2.gps.acc+'m)'):'—';
+    await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+SHEET_K+'!H'+rowIdx+':L'+rowIdx+'?valueInputOption=USER_ENTERED',
+      {method:'PUT',headers:{Authorization:'Bearer '+state.accessToken,'Content-Type':'application/json'},
+      body:JSON.stringify({values:[[p2t,cfg.p2label,p2gps,kesto,'valmis']]})});
+    return true;
+  }catch(e){return false;}
+}
+
+async function ensureKirjauksetSheet(){
+  const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+SHEET_K+'!A1',
+    {headers:{Authorization:'Bearer '+state.accessToken}});
+  const d=await r.json();
+  if(d.values&&d.values[0])return;
+  await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+SHEET_K+'!A1?valueInputOption=USER_ENTERED',
+    {method:'PUT',headers:{Authorization:'Bearer '+state.accessToken,'Content-Type':'application/json'},
+    body:JSON.stringify({values:[['Aikaleima','Kohde','Nimi','Sahkoposti','Piste 1 aika','Piste 1','Piste 1 GPS','Piste 2 aika','Piste 2','Piste 2 GPS','Kesto','Tila']]})});
+}
+
+// ── QR & SKANNAUS ────────────────────────────────
+function qrPayload(point){
+  const base=window.location.href.split('?')[0];
+  return base+'?point='+(point==='P1'?'1':'2')+'&token='+cfg.token;
+}
+
+function stopCamera(){
+  if(state.scanInterval){clearInterval(state.scanInterval);state.scanInterval=null;}
+  if(state.videoStream){state.videoStream.getTracks().forEach(function(t){t.stop();});state.videoStream=null;}
+  state.scanning=false;
+}
+
+function startScan(){
+  state.scanError=null;state.scanOk=null;state.scanning=true;render();
+  setTimeout(function(){
+    const video=document.getElementById('qr-video');
+    if(!video){stopCamera();render();return;}
+    navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'}})
+      .then(function(stream){
+        state.videoStream=stream;video.srcObject=stream;video.play();
+        const canvas=document.createElement('canvas');
+        const ctx=canvas.getContext('2d');
+        state.scanInterval=setInterval(function(){
+          if(video.readyState===video.HAVE_ENOUGH_DATA){
+            canvas.width=video.videoWidth;canvas.height=video.videoHeight;
+            ctx.drawImage(video,0,0);
+            const img=ctx.getImageData(0,0,canvas.width,canvas.height);
+            const code=jsQR(img.data,img.width,img.height);
+            if(code)handleQR(code.data);
+          }
+        },200);
+      })
+      .catch(function(e){state.scanning=false;state.scanError='Kamera ei kaytettavissa: '+e.message;render();});
+  },100);
+}
+
+function getGPS(cb){
+  if(!navigator.geolocation){cb(null);return;}
+  navigator.geolocation.getCurrentPosition(
+    function(p){cb({lat:p.coords.latitude.toFixed(6),lon:p.coords.longitude.toFixed(6),acc:Math.round(p.coords.accuracy)});},
+    function(){cb(null);},{enableHighAccuracy:true,timeout:8000});
+}
+
+function handleAutoPoint(){
+  if(!autoPoint||!state.user)return;
+  if(urlToken&&urlToken!==cfg.token){cfg.token=urlToken;saveSettings(cfg);}
+  const point=autoPoint==='1'?'P1':autoPoint==='2'?'P2':null;
+  if(!point)return;
+  const ts=Date.now();
+  const entry={ts:ts,user:(state.user&&state.user.email)||'tuntematon',name:(state.user&&state.user.name)||'',gps:null};
+  getGPS(function(gps){entry.gps=gps;});
+  processPoint(point,entry,ts);
+}
+
+function handleQR(data){
+  try{
+    let point,token;
+    if(data.indexOf('?point=')!==-1){
+      const u=new URL(data);
+      point=u.searchParams.get('point')==='1'?'P1':'P2';
+      token=u.searchParams.get('token');
+    }else{
+      const p=JSON.parse(data);point=p.point;token=p.token;
+    }
+    if(token!==cfg.token){stopCamera();state.scanError='Vaara QR-koodi — ei kuulu tahan kohteeseen.';render();return;}
+    stopCamera();
+    const ts=Date.now();
+    const entry={ts:ts,user:(state.user&&state.user.email)||'tuntematon',name:(state.user&&state.user.name)||'',gps:null};
+    getGPS(function(gps){entry.gps=gps;});
+    processPoint(point,entry,ts);
+  }catch(e){stopCamera();state.scanError='Tuntematon QR-koodi.';render();}
+}
+
+function processPoint(point,entry,ts){
+  if(!state.current)state.current={id:ts,p1:null,p2:null};
+  if(point==='P1'){
+    state.current.p1=entry;
+    if(state.current.p2){finishRound();return;}
+    state.scanOk='P1';
+  }else{
+    state.current.p2=entry;
+    if(state.current.p1){finishRound();return;}
+    state.scanOk='P2_waiting';
+  }
+  lsSet('sc_current4',state.current);
+  // Tallenna kesken-kirjaus Sheetsiin taustalla
+  ensureToken().then(function(){return appendToSheets(state.current,true);}).catch(function(){});
+  state.tab='kierros';
+  setTimeout(function(){state.scanOk=null;render();},2500);
   render();
 }
 
-// ═══════════════════════════════════════════
-// GOOGLE SHEETS
-// ═══════════════════════════════════════════
-async function saveToSheets(round) {
-  // Varmista että otsikkorivi on olemassa
-  await ensureHeader();
-
-  const p1t = round.p1 ? new Date(round.p1.ts).toLocaleString('fi-FI') : '—';
-  const p2t = round.p2 ? new Date(round.p2.ts).toLocaleString('fi-FI') : '—';
-  const kesto = (round.p1 && round.p2) ? durStr(round.p1.ts, round.p2.ts) : '—';
-  const user = (round.p1 && round.p1.user) || (round.p2 && round.p2.user) || '—';
-  const name = (round.p1 && round.p1.name) || (round.p2 && round.p2.name) || '—';
-  const p1gps = (round.p1 && round.p1.gps) ? round.p1.gps.lat + ', ' + round.p1.gps.lon + ' (±' + round.p1.gps.acc + 'm)' : '—';
-  const p2gps = (round.p2 && round.p2.gps) ? round.p2.gps.lat + ', ' + round.p2.gps.lon + ' (±' + round.p2.gps.acc + 'm)' : '—';
-
-  const values = [[
-    new Date(round.id).toLocaleString('fi-FI'),
-    cfg.siteName,
-    name,
-    user,
-    p1t,
-    cfg.p1label,
-    p1gps,
-    p2t,
-    cfg.p2label,
-    p2gps,
-    kesto
-  ]];
-
-  const resp = await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${SHEETS_ID}/values/A:A:append?valueInputOption=USER_ENTERED&insertDataOption=INSERT_ROWS`,
-    {
-      method: 'POST',
-      headers: { Authorization: 'Bearer ' + state.accessToken, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ values })
-    }
-  );
-  if (!resp.ok) {
-    const err = await resp.json();
-    throw new Error((err.error && err.error.message) || resp.status);
+async function finishRound(){
+  const round=Object.assign({},state.current);
+  if(round.p1&&round.p2&&!round.sheetRow&&round.p1.ts>round.p2.ts){
+    const tmp=round.p1;round.p1=round.p2;round.p2=tmp;
   }
+  localStorage.removeItem('sc_current4');
+  state.current=null;
+  state.rounds.unshift(round);
+  lsSet('sc_rounds4',state.rounds);
+  state.scanOk='DONE';state.saving=true;render();
+  try{
+    await ensureToken();
+    const updated=await updateKeskenToValmis(round);
+    if(!updated)await appendToSheets(round,false);
+    state.saving=false;
+    await loadHistoryFromSheet();
+  }catch(e){
+    state.saving=false;
+    state.saveError='Sheets-tallennus epaonnistui: '+e.message;
+  }
+  setTimeout(function(){state.scanOk=null;render();},3000);
+  render();
 }
 
-async function ensureHeader() {
-  // Tarkista onko A1 jo täytetty
-  const resp = await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${SHEETS_ID}/values/A1`,
-    { headers: { Authorization: 'Bearer ' + state.accessToken } }
-  );
-  const data = await resp.json();
-  if (data.values && data.values[0]) return; // jo olemassa
-
-  // Lisää otsikot
-  await fetch(
-    `https://sheets.googleapis.com/v4/spreadsheets/${SHEETS_ID}/values/A1?valueInputOption=USER_ENTERED`,
-    {
-      method: 'PUT',
-      headers: { Authorization: 'Bearer ' + state.accessToken, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ values: [['Aikaleima','Kohde','Nimi','Sähköposti','Piste 1 aika','Piste 1','Piste 1 GPS','Piste 2 aika','Piste 2','Piste 2 GPS','Kesto']] })
-    }
-  );
+async function changeToken(){
+  if(!confirm('Vaihda token? Vanhat QR-koodit lakkaavat toimimasta!'))return;
+  const t=randToken();cfg.token=t;saveSettings(cfg);
+  state.tokenSaving=true;render();
+  try{await ensureToken();await writeTokenToSheet(t);state.tokenSaving=false;alert('Token vaihdettu: '+t+'\nTulosta uudet QR-koodit!');}
+  catch(e){state.tokenSaving=false;state.saveError='Tokenin tallennus epaonnistui: '+e.message;}
+  render();
 }
 
-// ═══════════════════════════════════════════
-// APUFUNKTIOT
-// ═══════════════════════════════════════════
-function fmt(ts) {
-  if (!ts) return '—';
-  return new Date(ts).toLocaleString('fi-FI', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit' });
+// ── APUFUNKTIOT ──────────────────────────────────
+function fmt(ts){
+  if(!ts)return '—';
+  if(typeof ts==='string'&&isNaN(Number(ts)))return ts;
+  return new Date(Number(ts)).toLocaleString('fi-FI',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'});
 }
-
-function durStr(a, b) {
-  const m = Math.round(Math.abs(b - a) / 60000);
-  return m < 60 ? m + ' min' : Math.floor(m/60) + ' h ' + (m%60) + ' min';
+function durStr(a,b){
+  if(!a||!b)return '—';
+  const m=Math.round(Math.abs(b-a)/60000);
+  return m<60?m+' min':Math.floor(m/60)+' h '+(m%60)+' min';
 }
-
-function hoursSinceLast() {
-  const done = state.rounds.filter(r => r.p1 && r.p2);
-  if (!done.length) return null;
-  return (Date.now() - Math.max(...done.map(r => Math.max(r.p1.ts, r.p2.ts)))) / 3600000;
-}
-
-function cancelRound() { stopCamera(); state.current = null; state.scanError = null; render(); }
-function cancelScan() { stopCamera(); state.scanError = null; render(); }
-
-function renderQRs() {
-  setTimeout(() => {
-    ['qrc-p1','qrc-p2'].forEach((id, i) => {
-      const el = document.getElementById(id);
-      if (!el) return;
-      el.innerHTML = '';
-      const payload = qrPayload(i===0?'P1':'P2');
-      const url = 'https://api.qrserver.com/v1/create-qr-code/?size=130x130&margin=1&data=' + encodeURIComponent(payload);
-      const img = document.createElement('img');
-      img.width = 130;
-      img.height = 130;
-      img.style.borderRadius = '4px';
-      img.style.display = 'block';
-      img.style.margin = '0 auto 10px';
-      img.onerror = () => { el.innerHTML = '<div style="color:#f87171;font-size:11px;padding:8px">Ei verkkoyhteyttä QR-generointiin</div>'; };
-      img.src = url;
-      el.appendChild(img);
-    });
-  }, 100);
-}
-
-function exportCSV() {
-  const done = state.rounds.filter(r => r.p1 && r.p2);
-  const rows = [['Nro','Kohde','Käyttäjä','Piste 1 aika','Piste 2 aika','Kesto']];
-  done.forEach((r, i) => {
-    rows.push([done.length - i, cfg.siteName, r.p1.user, fmt(r.p1.ts), fmt(r.p2.ts), durStr(r.p1.ts, r.p2.ts)]);
+function hoursSinceLast(){
+  const done=state.rounds.filter(function(r){return r.p1&&r.p2&&r.status!=='kesken';});
+  if(!done.length)return null;
+  let latest=0;
+  done.forEach(function(r){
+    const t=r.sheetRow?new Date(r.p2.ts).getTime():Math.max(r.p1.ts,r.p2.ts);
+    if(t>latest)latest=t;
   });
-  const csv = rows.map(r => r.map(c => '"'+String(c).replace(/"/g,'""')+'"').join(',')).join('\n');
-  const a = document.createElement('a');
-  a.href = 'data:text/csv;charset=utf-8,\uFEFF' + encodeURIComponent(csv);
-  a.download = 'sitecheck_' + new Date().toISOString().slice(0,10) + '.csv';
+  return (Date.now()-latest)/3600000;
+}
+function cancelRound(){stopCamera();state.current=null;localStorage.removeItem('sc_current4');state.scanError=null;render();}
+function cancelScan(){stopCamera();state.scanError=null;render();}
+
+function renderQRs(){
+  setTimeout(function(){
+    ['qrc-p1','qrc-p2'].forEach(function(id,i){
+      const el=document.getElementById(id);if(!el)return;
+      el.innerHTML='';
+      const url='https://api.qrserver.com/v1/create-qr-code/?size=150x150&margin=1&data='+encodeURIComponent(qrPayload(i===0?'P1':'P2'));
+      const img=document.createElement('img');
+      img.width=150;img.height=150;img.style.cssText='border-radius:4px;display:block;margin:0 auto 10px';
+      img.onerror=function(){el.innerHTML='<div style="color:#f87171;font-size:11px;padding:8px">Tarvitaan verkkoyhteys</div>';};
+      img.src=url;el.appendChild(img);
+    });
+  },100);
+}
+
+function exportCSV(){
+  const done=state.rounds.filter(function(r){return r.p1&&r.p2;});
+  const rows=[['Nro','Kohde','Kayttaja','Piste 1 aika','Piste 2 aika','Kesto','Tila']];
+  done.forEach(function(r,i){
+    rows.push([done.length-i,r.siteName||cfg.siteName,(r.p1&&r.p1.user)||'—',fmt(r.p1&&r.p1.ts),fmt(r.p2&&r.p2.ts),r.kesto||durStr(r.p1&&r.p1.ts,r.p2&&r.p2.ts),r.status||'valmis']);
+  });
+  const csv=rows.map(function(r){return r.map(function(c){return '"'+String(c).replace(/"/g,'""')+'"';}).join(',');}).join('\n');
+  const a=document.createElement('a');
+  a.href='data:text/csv;charset=utf-8,\uFEFF'+encodeURIComponent(csv);
+  a.download='sitecheck_'+new Date().toISOString().slice(0,10)+'.csv';
   a.click();
 }
 
-// ═══════════════════════════════════════════
-// RENDER
-// ═══════════════════════════════════════════
-function render() {
-  const app = document.getElementById('app');
-  if (!state.initialized) { app.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;color:#555"><div class="spinner"></div></div>'; return; }
-  if (!state.user) { app.innerHTML = renderLogin(); initGoogleSignIn(); return; }
+// ── RENDER ───────────────────────────────────────
+function render(){
+  const app=document.getElementById('app');
+  if(!state.initialized){app.innerHTML='<div style="display:flex;align-items:center;justify-content:center;min-height:100vh;gap:12px;color:#555"><div class="spinner"></div> Ladataan...</div>';return;}
+  if(!state.user){app.innerHTML=renderLogin();initGoogleSignIn();return;}
 
-  const hours = hoursSinceLast();
-  const maxH = cfg.maxInterval;
-  const overdue = hours !== null && hours > maxH;
-  const warning = hours !== null && hours > maxH * 0.75 && !overdue;
+  const hours=hoursSinceLast();
+  const maxH=cfg.maxInterval;
+  const overdue=hours!==null&&hours>maxH;
+  const warning=hours!==null&&hours>maxH*0.75&&!overdue;
 
-  let html = '';
+  let h='';
+  h+='<div class="header"><div class="logo">Site<span>Check</span></div>';
+  h+='<div class="user-chip" onclick="signOut()"><img src="'+(state.user.picture||'')+'" onerror="this.style.display=\'none\'"><span>'+(state.user.name||'').split(' ')[0]+'</span></div></div>';
+  h+='<div class="content">';
 
-  // Header
-  html += `<div class="header">
-    <div class="logo">Site<span>Check</span></div>
-    <div class="user-chip" onclick="signOut()">
-      <img src="${state.user.picture}" onerror="this.style.display='none'">
-      <span>${state.user.name.split(' ')[0]}</span>
-    </div>
-  </div>`;
+  const sv=state.loadingSheets?'Ladataan...':hours===null?'Ei kierroksia':hours.toFixed(1)+' h sitten';
+  const badge=state.loadingSheets?'<span class="status-badge badge-idle">...</span>':
+    overdue?'<span class="status-badge badge-alert">MYOHASSA</span>':
+    warning?'<span class="status-badge badge-warn">PIAN VUOROSSA</span>':
+    hours===null?'<span class="status-badge badge-idle">—</span>':
+    '<span class="status-badge badge-ok">OK</span>';
+  h+='<div class="status-bar"><div><div class="status-label">Edellinen tarkastus</div><div class="status-value">'+sv+'</div></div>'+badge+'</div>';
 
-  html += `<div class="content">`;
+  if(overdue)h+='<div class="alert alert-red"><span class="alert-icon">⚠</span><span>Tarkastus myohassa! Viimeisesta <strong>'+hours.toFixed(1)+' h</strong> — raja on '+maxH+' h.</span></div>';
+  else if(warning)h+='<div class="alert alert-amber"><span class="alert-icon">⏰</span><span>Raja lahestyy — viimeisesta '+hours.toFixed(1)+' h sitten.</span></div>';
+  if(state.saveError)h+='<div class="alert alert-amber"><span class="alert-icon">⚡</span><span>'+state.saveError+' <span onclick="state.saveError=null;render()" style="cursor:pointer;text-decoration:underline">Sulje</span></span></div>';
+  if(state.current&&(state.current.p1||state.current.p2)){
+    const miss=state.current.p1&&!state.current.p2?'Piste 2':'Piste 1';
+    h+='<div class="alert alert-amber"><span class="alert-icon">⏸</span><span>Kierros kesken — skannaa '+miss+' jatkaaksesi.</span></div>';
+  }
 
-  // Status
-  const statusVal = hours === null ? 'Ei kierroksia' : `${hours.toFixed(1)} h sitten`;
-  const badge = overdue
-    ? `<span class="status-badge badge-alert">MYÖHÄSSÄ</span>`
-    : warning
-    ? `<span class="status-badge badge-warn">PIAN VUOROSSA</span>`
-    : hours === null
-    ? `<span class="status-badge badge-idle">—</span>`
-    : `<span class="status-badge badge-ok">OK</span>`;
+  h+='<div class="tabs">';
+  ['kierros','historia','qr','asetukset'].forEach(function(t){
+    const label={'kierros':'Kierros','historia':'Historia','qr':'QR-koodit','asetukset':'Asetukset'}[t];
+    const extra=t==='qr'?';renderQRs()':'';
+    h+='<button class="tab '+(state.tab===t?'active':'')+'" onclick="stopCamera();state.tab=\''+t+'\';render()'+extra+'">'+label+'</button>';
+  });
+  h+='</div>';
 
-  html += `<div class="status-bar">
-    <div>
-      <div class="status-label">Edellinen tarkastus</div>
-      <div class="status-value">${statusVal}</div>
-    </div>
-    ${badge}
-  </div>`;
+  if(state.tab==='kierros')h+=renderKierros();
+  if(state.tab==='historia')h+=renderHistoria();
+  if(state.tab==='qr')h+=renderQR();
+  if(state.tab==='asetukset')h+=renderAsetukset();
 
-  if (overdue) html += `<div class="alert alert-red"><span class="alert-icon">⚠</span><span>Tarkastus myöhässä! Viimeisestä kierroksesta <strong>${hours.toFixed(1)} h</strong> — raja on ${maxH} h.</span></div>`;
-  else if (warning) html += `<div class="alert alert-amber"><span class="alert-icon">⏰</span><span>Tarkastusraja lähestyy — viimeisestä ${hours.toFixed(1)} h sitten.</span></div>`;
-
-  if (state.saveError) html += `<div class="alert alert-amber"><span class="alert-icon">⚡</span><span>${state.saveError}</span></div>`;
-
-  // Tabs
-  html += `<div class="tabs">
-    <button class="tab ${state.tab==='kierros'?'active':''}" onclick="stopCamera();state.tab='kierros';render()">Kierros</button>
-    <button class="tab ${state.tab==='historia'?'active':''}" onclick="stopCamera();state.tab='historia';render()">Historia</button>
-    <button class="tab ${state.tab==='qr'?'active':''}" onclick="stopCamera();state.tab='qr';render();renderQRs()">QR-koodit</button>
-    <button class="tab ${state.tab==='asetukset'?'active':''}" onclick="stopCamera();state.tab='asetukset';render()">Asetukset</button>
-  </div>`;
-
-  if (state.tab === 'kierros') html += renderKierros();
-  if (state.tab === 'historia') html += renderHistoria();
-  if (state.tab === 'qr') html += renderQR();
-  if (state.tab === 'asetukset') html += renderAsetukset();
-
-  html += `</div>`; // content
-
-  app.innerHTML = html;
-  if (state.tab === 'qr') renderQRs();
+  h+='</div>';
+  app.innerHTML=h;
+  if(state.tab==='qr')renderQRs();
 }
 
-function renderLogin() {
-  return `<div class="login-screen">
-    <div class="login-logo">Site<span>Check</span></div>
-    <div class="login-sub">Tarkastuskuittausjärjestelmä<br>QR-pohjaisella todentamisella</div>
-    <div id="google-signin-btn"></div>
-  </div>`;
+function renderLogin(){
+  return '<div class="login-screen"><div class="login-logo">Site<span>Check</span></div>'+
+    '<div class="login-sub">Tarkastuskuittausjarjestelma<br>QR-pohjaisella todentamisella</div>'+
+    '<div id="google-signin-btn"></div></div>';
 }
 
-function initGoogleSignIn() {
-  setTimeout(() => {
-    if (!window.google || !document.getElementById('google-signin-btn')) return;
-    google.accounts.id.initialize({ client_id: CLIENT_ID, callback: handleCredentialResponse });
-    google.accounts.id.renderButton(document.getElementById('google-signin-btn'), {
-      theme: 'filled_black', size: 'large', text: 'signin_with', shape: 'pill', width: 240
-    });
-  }, 200);
+function initGoogleSignIn(){
+  setTimeout(function(){
+    if(!window.google||!document.getElementById('google-signin-btn'))return;
+    google.accounts.id.initialize({client_id:CLIENT_ID,callback:handleCredentialResponse});
+    google.accounts.id.renderButton(document.getElementById('google-signin-btn'),
+      {theme:'filled_black',size:'large',text:'signin_with',shape:'pill',width:240});
+  },200);
 }
 
-function renderKierros() {
-  let html = '';
-
-  if (state.scanOk === 'DONE') {
-    html += `<div class="action-card">
-      <div class="success-flash">
-        <div class="success-icon">✓</div>
-        <div class="success-title">Kierros valmis!</div>
-        <div class="success-sub">${state.saving ? '<span class="spinner"></span> Tallennetaan Sheetsiin...' : 'Tallennettu Google Sheetsiin'}</div>
-      </div>
-    </div>`;
-    return html;
+function renderKierros(){
+  let h='';
+  if(state.scanOk==='DONE'){
+    return '<div class="action-card"><div class="success-flash"><div class="success-icon">✓</div>'+
+      '<div class="success-title">Kierros valmis!</div>'+
+      '<div class="success-sub">'+(state.saving?'<span class="spinner"></span> Tallennetaan...':'Tallennettu Google Sheetsiin')+'</div></div></div>';
   }
-
-  if (state.scanOk === 'P1') {
-    html += `<div class="alert alert-green"><span class="alert-icon">✓</span><span>Piste 1 kuitattu! Skannaa nyt piste 2.</span></div>`;
+  if(state.scanOk==='P1')h+='<div class="alert alert-green"><span class="alert-icon">✓</span><span>Piste 1 kuitattu! Skannaa nyt piste 2.</span></div>';
+  if(state.scanOk==='P2_waiting')h+='<div class="alert alert-green"><span class="alert-icon">✓</span><span>Piste 2 kuitattu! Skannaa nyt piste 1.</span></div>';
+  if(state.scanning){
+    return h+'<div class="action-card"><div class="card-title">Skannaa QR-koodi</div>'+
+      '<div class="scanner-wrap"><video id="qr-video" muted playsinline></video>'+
+      '<div class="scan-overlay"><div class="scan-box"></div></div>'+
+      '<div class="scan-label">Kohdista koodi kehykseen</div></div>'+
+      '<button class="btn" onclick="cancelScan()">✕ Peruuta</button></div>';
   }
-  if (state.scanOk === 'P2_waiting') {
-    html += `<div class="alert alert-green"><span class="alert-icon">✓</span><span>Piste 2 kuitattu! Skannaa nyt piste 1.</span></div>`;
+  if(state.scanError)h+='<div class="alert alert-red"><span class="alert-icon">✕</span><span>'+state.scanError+'</span></div>';
+  const p1=state.current&&state.current.p1;
+  const p2=state.current&&state.current.p2;
+  h+='<div class="action-card"><div class="card-title">Tarkastuskierros — '+cfg.siteName+'</div>';
+  h+='<div class="step '+(p1?'step-done':'step-active')+'"><div class="step-num">'+(p1?'✓':'1')+'</div>'+
+    '<div class="step-body"><div class="step-title">'+cfg.p1label+'</div>'+
+    '<div class="step-meta">'+(p1?fmt(p1.ts):'Skannaa aloituspiste')+'</div></div></div>';
+  h+='<div class="step '+(p2?'step-done':p1?'step-active':'step-waiting')+'"><div class="step-num">'+(p2?'✓':'2')+'</div>'+
+    '<div class="step-body"><div class="step-title">'+cfg.p2label+'</div>'+
+    '<div class="step-meta">'+(p2?fmt(p2.ts):'Skannaa lopetuspiste')+'</div></div></div>';
+  if(!state.current){
+    h+='<button class="btn btn-green" onclick="startScan()">📷 Skannaa piste 1</button>';
+  }else{
+    const np=p1&&!p2?'P2':'P1';
+    const bl=p1&&!p2?'📷 Skannaa piste 2':'📷 Skannaa piste 1';
+    h+='<div class="btn-row"><button class="btn btn-blue" style="flex:1;margin-top:0" onclick="startScan()">'+bl+'</button>'+
+      '<button class="btn btn-danger" onclick="cancelRound()">✕</button></div>';
   }
-
-  if (state.scanning) {
-    html += `<div class="action-card">
-      <div class="card-title">Skannaa QR-koodi</div>
-      <div class="scanner-wrap">
-        <video id="qr-video" muted playsinline></video>
-        <div class="scan-overlay"><div class="scan-box"></div></div>
-        <div class="scan-label">Kohdista koodi kehykseen</div>
-      </div>
-      <button class="btn" onclick="cancelScan()">✕ Peruuta</button>
-    </div>`;
-    return html;
-  }
-
-  if (state.scanError) html += `<div class="alert alert-red"><span class="alert-icon">✕</span><span>${state.scanError}</span></div>`;
-
-  html += `<div class="action-card">
-    <div class="card-title">Tarkastuskierros — ${cfg.siteName}</div>`;
-
-  const hasP1 = (state.current && state.current.p1);
-  const hasP2 = (state.current && state.current.p2);
-
-  html += `<div class="step ${hasP1 ? 'step-done' : 'step-active'}">
-    <div class="step-num">${hasP1 ? '✓' : '1'}</div>
-    <div class="step-body">
-      <div class="step-title">${cfg.p1label}</div>
-      <div class="step-meta">${hasP1 ? fmt(hasP1.ts) : 'Skannaa aloituspiste'}</div>
-    </div>
-  </div>`;
-
-  html += `<div class="step ${hasP2 ? 'step-done' : (hasP1 ? 'step-active' : 'step-waiting')}">
-    <div class="step-num">${hasP2 ? '✓' : '2'}</div>
-    <div class="step-body">
-      <div class="step-title">${cfg.p2label}</div>
-      <div class="step-meta">${hasP2 ? fmt(hasP2.ts) : 'Skannaa lopetuspiste'}</div>
-    </div>
-  </div>`;
-
-  if (!state.current) {
-    html += `<button class="btn btn-green" onclick="startScan('P1')">📷 Skannaa piste 1</button>`;
-  } else {
-    const nextPoint = hasP1 && !hasP2 ? 'P2' : 'P1';
-    const btnLabel = hasP1 && !hasP2 ? '📷 Skannaa piste 2' : '📷 Skannaa piste 1';
-    html += `<div class="btn-row">
-      <button class="btn btn-blue" style="flex:1;margin-top:0" onclick="startScan('${nextPoint}')">${btnLabel}</button>
-      <button class="btn btn-danger" onclick="cancelRound()">✕</button>
-    </div>`;
-  }
-
-  html += `</div>`;
-
-  // Info: järjestyksellä ei väliä
-  if (!state.current) {
-    html += `<div style="text-align:center; font-size:11px; color:var(--text3); font-family:'DM Mono',monospace; margin-top: -4px;">Pisteiden järjestyksellä ei ole väliä</div>`;
-  }
-
-  return html;
+  h+='</div>';
+  if(!state.current)h+='<div style="text-align:center;font-size:11px;color:var(--text3);font-family:\'DM Mono\',monospace;margin-top:-4px">Pisteiden jarjestyksella ei ole valia</div>';
+  return h;
 }
 
-function renderHistoria() {
-  const done = state.rounds.filter(r => r.p1 && r.p2);
-  let html = `<div class="action-card">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
-      <div class="card-title" style="margin:0">Historia — ${done.length} kierrosta</div>
-      ${done.length > 0 ? `<button class="btn btn-sm" onclick="exportCSV()">↓ CSV</button>` : ''}
-    </div>`;
-
-  if (!done.length) {
-    html += `<div class="empty">Ei vielä kierroksia</div>`;
-  } else {
-    done.forEach((r, i) => {
-      const n = done.length - i;
-      html += `<div class="history-item">
-        <div class="history-head">
-          <div class="history-num">Kierros #${n}</div>
-          <div class="history-dur">${durStr(r.p1.ts, r.p2.ts)}</div>
-        </div>
-        <div class="history-row">▶ ${fmt(r.p1.ts)}</div>
-        <div class="history-row">■ ${fmt(r.p2.ts)}</div>
-        <div class="history-user">${r.p1.name} · ${r.p1.user}</div>
-      </div>`;
-    });
-  }
-
-  html += `</div>`;
-  if (done.length > 0) {
-    html += `<button class="btn" style="color:var(--text3);font-size:13px" onclick="if(confirm('Poistetaanko paikallinen historia?')){state.rounds=[];saveRounds([]);render();}">Tyhjennä paikallinen historia</button>`;
-  }
-  return html;
+function renderHistoria(){
+  const done=state.rounds.filter(function(r){return r.p1&&r.p2&&r.status!=='kesken';});
+  const kesken=state.rounds.filter(function(r){return r.status==='kesken'||(r.p1&&!r.p2)||(!r.p1&&r.p2);});
+  let h='<div class="action-card"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">'+
+    '<div class="card-title" style="margin:0">Historia — '+done.length+' kierrosta</div>'+
+    (done.length>0?'<button class="btn btn-sm" onclick="exportCSV()">&#8595; CSV</button>':'')+
+    '</div>';
+  if(!done.length&&!kesken.length)h+='<div class="empty">Ei viela kierroksia</div>';
+  kesken.forEach(function(r){
+    const e=r.p1||r.p2;
+    h+='<div class="history-item"><div class="history-head"><div class="history-num">Kesken ⏸</div></div>'+
+      '<div class="history-row">'+(r.p1?'▶ '+fmt(r.p1.ts)+' (piste 1)':'■ '+fmt(r.p2.ts)+' (piste 2)')+'</div>'+
+      '<div class="history-user">'+(e&&e.user?e.user:'')+'</div></div>';
+  });
+  done.forEach(function(r,i){
+    const n=done.length-i;
+    const kesto=r.kesto||(!r.sheetRow&&r.p1&&r.p2?durStr(r.p1.ts,r.p2.ts):'—');
+    h+='<div class="history-item"><div class="history-head"><div class="history-num">Kierros #'+n+'</div><div class="history-dur">'+kesto+'</div></div>'+
+      '<div class="history-row">&#9654; '+fmt(r.p1&&r.p1.ts)+'</div>'+
+      '<div class="history-row">&#9632; '+fmt(r.p2&&r.p2.ts)+'</div>'+
+      '<div class="history-user">'+((r.p1&&r.p1.name)||'')+' · '+((r.p1&&r.p1.user)||'—')+'</div></div>';
+  });
+  h+='</div>';
+  h+='<button class="btn" style="color:var(--text3);font-size:13px;margin-bottom:8px" onclick="loadFromSheets().then(function(){render();})">'+
+    (state.loadingSheets?'<span class="spinner"></span> Ladataan...':'&#8635; Paivita Sheetsista')+'</button>';
+  return h;
 }
 
-function renderQR() {
-  const baseUrl = window.location.href.split('?')[0];
-  return `<div class="action-card">
-    <div class="card-title">Tulosta ja kiinnitä kohteeseen</div>
-    <div class="qr-grid">
-      <div class="qr-card">
-        <div id="qrc-p1"></div>
-        <div class="qr-card-label">Piste 1</div>
-        <div class="qr-card-sub">${cfg.p1label}</div>
-      </div>
-      <div class="qr-card">
-        <div id="qrc-p2"></div>
-        <div class="qr-card-label">Piste 2</div>
-        <div class="qr-card-sub">${cfg.p2label}</div>
-      </div>
-    </div>
-    <div style="font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;line-height:1.6;margin-top:8px">
-      Token: <span style="color:var(--text2)">${cfg.token}</span><br>
-      Kohde: <span style="color:var(--text2)">${cfg.siteName}</span>
-    </div>
-  </div>
-  <div style="font-size:12px;color:var(--text3);line-height:1.6;padding:0 4px">
-    QR-koodit sisältävät turvatokenin — vain sinun laitoksesi koodit toimivat tässä sovelluksessa. Jos vaihdat tokenin, vanhat koodit lakkaavat toimimasta.
-  </div>`;
+function renderQR(){
+  return '<div class="action-card"><div class="card-title">Tulosta ja kiinnita kohteeseen</div>'+
+    '<div class="qr-grid">'+
+    '<div class="qr-card"><div id="qrc-p1"></div><div class="qr-card-label">Piste 1</div><div class="qr-card-sub">'+cfg.p1label+'</div></div>'+
+    '<div class="qr-card"><div id="qrc-p2"></div><div class="qr-card-label">Piste 2</div><div class="qr-card-sub">'+cfg.p2label+'</div></div>'+
+    '</div>'+
+    '<div style="font-size:11px;color:var(--text3);font-family:\'DM Mono\',monospace;line-height:1.6;margin-top:8px">'+
+    'Token: <span style="color:var(--text2)">'+cfg.token+'</span><br>'+
+    'Kohde: <span style="color:var(--text2)">'+cfg.siteName+'</span></div></div>'+
+    '<div style="font-size:12px;color:var(--text3);line-height:1.6;padding:0 4px">Token tallennetaan automaattisesti Google Sheetsiin — pysyy samana vaikka puhelin vaihtuisi.</div>';
 }
 
-function renderAsetukset() {
-  return `<div class="action-card">
-    <div class="card-title">Kohteen tiedot</div>
-    <div class="field">
-      <label>Kohteen nimi</label>
-      <input type="text" value="${cfg.siteName}" oninput="cfg.siteName=this.value;saveSettings(cfg)">
-    </div>
-    <div class="field">
-      <label>Piste 1 — aloituspiste</label>
-      <input type="text" value="${cfg.p1label}" oninput="cfg.p1label=this.value;saveSettings(cfg)">
-    </div>
-    <div class="field">
-      <label>Piste 2 — lopetuspiste</label>
-      <input type="text" value="${cfg.p2label}" oninput="cfg.p2label=this.value;saveSettings(cfg)">
-    </div>
-    <div class="field">
-      <label>Max tarkastusväli (tuntia)</label>
-      <input type="number" min="1" max="168" value="${cfg.maxInterval}" oninput="cfg.maxInterval=parseInt(this.value)||24;saveSettings(cfg)">
-    </div>
-  </div>
-  <div class="action-card">
-    <div class="card-title">Turva-token</div>
-    <div style="font-family:'DM Mono',monospace;font-size:16px;color:var(--text);margin-bottom:12px">${cfg.token}</div>
-    <button class="btn btn-danger btn-sm" onclick="if(confirm('Vaihda token? Vanhat QR-koodit lakkaavat toimimasta!')){cfg.token=Math.random().toString(36).slice(2,10).toUpperCase();saveSettings(cfg);render();}">Vaihda token</button>
-  </div>
-  <div class="action-card">
-    <div class="card-title">Tili</div>
-    <div style="font-size:14px;color:var(--text2);margin-bottom:12px">${(state.user && state.user.email)}</div>
-    <button class="btn btn-danger btn-sm" onclick="signOut()">Kirjaudu ulos</button>
-  </div>`;
+function renderAsetukset(){
+  return '<div class="action-card"><div class="card-title">Kohteen tiedot</div>'+
+    '<div class="field"><label>Kohteen nimi</label><input type="text" value="'+cfg.siteName+'" oninput="cfg.siteName=this.value;saveSettings(cfg)"></div>'+
+    '<div class="field"><label>Piste 1 — aloituspiste</label><input type="text" value="'+cfg.p1label+'" oninput="cfg.p1label=this.value;saveSettings(cfg)"></div>'+
+    '<div class="field"><label>Piste 2 — lopetuspiste</label><input type="text" value="'+cfg.p2label+'" oninput="cfg.p2label=this.value;saveSettings(cfg)"></div>'+
+    '<div class="field"><label>Max tarkastusväli (tuntia)</label><input type="number" min="1" max="168" value="'+cfg.maxInterval+'" oninput="cfg.maxInterval=parseInt(this.value)||24;saveSettings(cfg)"></div>'+
+    '</div>'+
+    '<div class="action-card"><div class="card-title">Turva-token</div>'+
+    '<div style="font-family:\'DM Mono\',monospace;font-size:16px;color:var(--text);margin-bottom:4px">'+cfg.token+'</div>'+
+    '<div style="font-size:12px;color:var(--text3);margin-bottom:12px">Tallennettu Google Sheetsiin — pysyy samana vaikka puhelin vaihtuisi.</div>'+
+    '<button class="btn btn-danger btn-sm" onclick="changeToken()">'+(state.tokenSaving?'<span class="spinner"></span> ':'')+'Vaihda token</button>'+
+    '</div>'+
+    '<div class="action-card"><div class="card-title">Tili</div>'+
+    '<div style="font-size:14px;color:var(--text2);margin-bottom:12px">'+(state.user&&state.user.email)+'</div>'+
+    '<button class="btn btn-danger btn-sm" onclick="signOut()">Kirjaudu ulos</button>'+
+    '</div>';
 }
 
-// ═══════════════════════════════════════════
-// KÄYNNISTYS
-// ═══════════════════════════════════════════
-window.addEventListener('load', () => {
-  initGoogle();
-  // Automaattinen QR-käsittely URL-parametrista
-  if (autoPoint) {
-    window.addEventListener('google-ready', handleAutoPoint);
-  }
-});
-</script>
-
-<script>
-// Google Identity Services callback
-window.onload = function() {
-  initGoogle();
-};
+window.onload=function(){initGoogle();};
 </script>
 </body>
 </html>
