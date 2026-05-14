@@ -439,7 +439,7 @@ if (!cfg.token) { cfg.token = Math.random().toString(36).slice(2,10).toUpperCase
 
 let state = {
   tab: 'kierros',
-  user: null,
+  user: (function() { try { return JSON.parse(localStorage.getItem('sc_user')); } catch(e) { return null; } })(),
   accessToken: null,
   tokenExpiry: 0,
   rounds: loadRounds(),
@@ -474,6 +474,7 @@ function initGoogle() {
       state.accessToken = resp.access_token;
       state.tokenExpiry = Date.now() + (resp.expires_in * 1000) - 60000;
       render();
+      // Käsittele URL-parametri kun token on saatu
       if (autoPoint && state.user) handleAutoPoint();
     }
   });
@@ -484,8 +485,12 @@ function initGoogle() {
 function handleCredentialResponse(response) {
   const payload = JSON.parse(atob(response.credential.split('.')[1]));
   state.user = { name: payload.name, email: payload.email, picture: payload.picture };
+  // Tallennetaan käyttäjä pysyvästi
+  localStorage.setItem('sc_user', JSON.stringify(state.user));
   render();
   requestToken();
+  // Käsittele URL-parametri heti kirjautumisen jälkeen
+  if (autoPoint) setTimeout(handleAutoPoint, 500);
 }
 
 function requestToken() {
@@ -507,6 +512,7 @@ function signOut() {
   state.user = null;
   state.accessToken = null;
   state.current = null;
+  localStorage.removeItem('sc_user');
   stopCamera();
   render();
 }
@@ -566,14 +572,45 @@ function handleAutoPoint() {
   if (!autoPoint || !state.user) return;
   const urlToken = urlParams.get('token');
   if (urlToken && urlToken !== cfg.token) {
-    // Token ei täsmää — päivitä token asetuksiin
     cfg.token = urlToken;
     saveSettings(cfg);
   }
   const point = autoPoint === '1' ? 'P1' : autoPoint === '2' ? 'P2' : null;
   if (!point) return;
-  const payload = qrPayload(point);
-  handleQR(payload, point);
+
+  // Haetaan GPS taustalla, kirjataan heti ilman odottamista
+  const ts = Date.now();
+  const entry = { ts, user: (state.user && state.user.email) || 'tuntematon', name: (state.user && state.user.name) || '', gps: null };
+
+  // GPS haetaan asynkronisesti — päivitetään entry kun saadaan
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(pos) {
+        entry.gps = {
+          lat: pos.coords.latitude.toFixed(6),
+          lon: pos.coords.longitude.toFixed(6),
+          acc: Math.round(pos.coords.accuracy)
+        };
+      },
+      function() { entry.gps = null; },
+      { enableHighAccuracy: true, timeout: 8000 }
+    );
+  }
+
+  if (point === 'P1') {
+    if (!state.current) state.current = { id: ts, p1: null, p2: null };
+    state.current.p1 = entry;
+    if (state.current.p2) { finishRound(); return; }
+    state.scanOk = 'P1';
+  } else {
+    if (!state.current) state.current = { id: ts, p1: null, p2: null };
+    state.current.p2 = entry;
+    if (state.current.p1) { finishRound(); return; }
+    state.scanOk = 'P2_waiting';
+  }
+  state.tab = 'kierros';
+  setTimeout(() => { state.scanOk = null; render(); }, 2500);
+  render();
 }
 
 function handleQR(data, expectedPoint) {
@@ -680,6 +717,8 @@ async function saveToSheets(round) {
   const kesto = (round.p1 && round.p2) ? durStr(round.p1.ts, round.p2.ts) : '—';
   const user = (round.p1 && round.p1.user) || (round.p2 && round.p2.user) || '—';
   const name = (round.p1 && round.p1.name) || (round.p2 && round.p2.name) || '—';
+  const p1gps = (round.p1 && round.p1.gps) ? round.p1.gps.lat + ', ' + round.p1.gps.lon + ' (±' + round.p1.gps.acc + 'm)' : '—';
+  const p2gps = (round.p2 && round.p2.gps) ? round.p2.gps.lat + ', ' + round.p2.gps.lon + ' (±' + round.p2.gps.acc + 'm)' : '—';
 
   const values = [[
     new Date(round.id).toLocaleString('fi-FI'),
@@ -688,8 +727,10 @@ async function saveToSheets(round) {
     user,
     p1t,
     cfg.p1label,
+    p1gps,
     p2t,
     cfg.p2label,
+    p2gps,
     kesto
   ]];
 
@@ -722,7 +763,7 @@ async function ensureHeader() {
     {
       method: 'PUT',
       headers: { Authorization: 'Bearer ' + state.accessToken, 'Content-Type': 'application/json' },
-      body: JSON.stringify({ values: [['Aikaleima','Kohde','Nimi','Sähköposti','Piste 1 aika','Piste 1','Piste 2 aika','Piste 2','Kesto']] })
+      body: JSON.stringify({ values: [['Aikaleima','Kohde','Nimi','Sähköposti','Piste 1 aika','Piste 1','Piste 1 GPS','Piste 2 aika','Piste 2','Piste 2 GPS','Kesto']] })
     }
   );
 }
