@@ -118,11 +118,13 @@ function lsSet(k,v){localStorage.setItem(k,JSON.stringify(v));}
 
 function loadSettings(){return lsGet('sc_s4');}
 function saveSettings(s){lsSet('sc_s4',s);}
-function defaultSettings(){return{siteName:'Biokaasulaitos',p1label:'Sisaankaynti / pumppaamohuone',p2label:'CHP-huone / loppupiste',maxInterval:24,token:randToken()};}
+function defaultSettings(){return{siteName:'Biokaasulaitos',p1label:'Sisaankaynti / pumppaamohuone',p2label:'CHP-huone / loppupiste',maxInterval:24,token:null};}
 function randToken(){return Math.random().toString(36).slice(2,10).toUpperCase();}
 
+// Ladataan asetukset — token luodaan VAIN jos ei löydy mistään
 let cfg = loadSettings() || defaultSettings();
-if(!cfg.token){cfg.token=randToken();saveSettings(cfg);}
+// Jos tokenia ei ole paikallisesti, käytetään väliaikaista — Sheets korvaa sen heti kirjautumisen jälkeen
+if(!cfg.token){cfg.token='LOADING';saveSettings(cfg);}
 
 const urlParams = new URLSearchParams(window.location.search);
 const autoPoint = urlParams.get('point');
@@ -218,16 +220,26 @@ async function loadTokenFromSheet(){
     const d=await r.json();
     if(d.values&&d.values[0]&&d.values[0][0]){
       const t=d.values[0][0].trim();
-      if(t){
-        // Sheets on aina auktoriteetti — ylikirjoitetaan paikallinen token
+      if(t&&t!=='LOADING'){
+        // Sheets on aina auktoriteetti
         cfg.token=t;
         saveSettings(cfg);
+        return;
       }
-    }else{
-      // Sheets tyhjä — kirjoitetaan paikallinen token sinne
-      await writeTokenToSheet(cfg.token);
     }
-  }catch(e){await ensureTokenSheet();}
+    // Sheetsissa ei ole tokenia — luodaan uusi ja tallennetaan
+    if(!cfg.token||cfg.token==='LOADING'){
+      cfg.token=randToken();
+      saveSettings(cfg);
+    }
+    await writeTokenToSheet(cfg.token);
+  }catch(e){
+    await ensureTokenSheet();
+    if(!cfg.token||cfg.token==='LOADING'){
+      cfg.token=randToken();
+      saveSettings(cfg);
+    }
+  }
 }
 
 async function ensureTokenSheet(){
