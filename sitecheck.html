@@ -128,7 +128,6 @@ if(!cfg.token){cfg.token='LOADING';saveSettings(cfg);}
 
 const urlParams = new URLSearchParams(window.location.search);
 const autoPoint = urlParams.get('point');
-const urlToken = urlParams.get('token');
 
 let state = {
   tab:'kierros',
@@ -344,7 +343,7 @@ async function ensureKirjauksetSheet(){
 // ── QR & SKANNAUS ────────────────────────────────
 function qrPayload(point){
   const base=window.location.href.split('?')[0];
-  return base+'?point='+(point==='P1'?'1':'2')+'&token='+cfg.token;
+  return base+'?point='+(point==='P1'?'1':'2');
 }
 
 function stopCamera(){
@@ -390,7 +389,6 @@ function getGPSPromise(){
 
 function handleAutoPoint(){
   if(!autoPoint||!state.user)return;
-  // Tokenin päivitys URL:sta on poistettu — token tulee aina Sheetsistä tai paikallisista asetuksista
   const point=autoPoint==='1'?'P1':autoPoint==='2'?'P2':null;
   if(!point)return;
   const ts=Date.now();
