@@ -216,30 +216,32 @@ async function loadFromSheets(){
 
 async function loadTokenFromSheet(){
   try{
-    const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+encodeURIComponent(SHEET_T)+'!A2',
+    const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+encodeURIComponent(SHEET_T)+'!A1:B10',
       {headers:{Authorization:'Bearer '+state.accessToken}});
     const d=await r.json();
-    if(d.values&&d.values[0]&&d.values[0][0]){
-      const t=d.values[0][0].trim();
-      if(t&&t!=='LOADING'){
-        // Sheets on aina auktoriteetti
-        cfg.token=t;
+    if(d.values&&d.values.length>1){
+      // Luetaan avain-arvo parit
+      const settings={};
+      d.values.forEach(function(row){
+        if(row[0]&&row[1])settings[row[0]]=row[1];
+      });
+      if(settings.token&&settings.token!=='LOADING'){
+        cfg.token=settings.token;
+        if(settings.siteName)cfg.siteName=settings.siteName;
+        if(settings.p1label)cfg.p1label=settings.p1label;
+        if(settings.p2label)cfg.p2label=settings.p2label;
+        if(settings.maxInterval)cfg.maxInterval=parseInt(settings.maxInterval)||24;
         saveSettings(cfg);
         return;
       }
     }
-    // Sheetsissa ei ole tokenia — luodaan uusi ja tallennetaan
-    if(!cfg.token||cfg.token==='LOADING'){
-      cfg.token=randToken();
-      saveSettings(cfg);
-    }
-    await writeTokenToSheet(cfg.token);
+    // Sheetsissa ei ole asetuksia — kirjoitetaan sinne
+    if(!cfg.token||cfg.token==='LOADING'){cfg.token=randToken();}
+    saveSettings(cfg);
+    await writeSettingsToSheet();
   }catch(e){
     await ensureTokenSheet();
-    if(!cfg.token||cfg.token==='LOADING'){
-      cfg.token=randToken();
-      saveSettings(cfg);
-    }
+    if(!cfg.token||cfg.token==='LOADING'){cfg.token=randToken();saveSettings(cfg);}
   }
 }
 
@@ -258,10 +260,24 @@ async function ensureTokenSheet(){
   }catch(e){}
 }
 
-async function writeTokenToSheet(token){
+async function writeSettingsToSheet(){
   await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+encodeURIComponent(SHEET_T)+'!A1?valueInputOption=USER_ENTERED',
     {method:'PUT',headers:{Authorization:'Bearer '+state.accessToken,'Content-Type':'application/json'},
-    body:JSON.stringify({values:[['Token'],[token],[''],['Muuta tokenia vain jos QR-koodit taytyy uusia.']]})});
+    body:JSON.stringify({values:[
+      ['Asetus','Arvo'],
+      ['token',cfg.token],
+      ['siteName',cfg.siteName],
+      ['p1label',cfg.p1label],
+      ['p2label',cfg.p2label],
+      ['maxInterval',cfg.maxInterval],
+      [''],
+      ['Muuta tokenia vain Vaihda token -napilla.']
+    ]})});
+}
+
+async function writeTokenToSheet(token){
+  cfg.token=token;
+  await writeSettingsToSheet();
 }
 
 async function loadHistoryFromSheet(){
@@ -470,7 +486,14 @@ async function finishRound(){
   render();
 }
 
-async function changeToken(){
+function saveSettingsAndSync(key, value){
+  cfg[key]=value;
+  saveSettings(cfg);
+  // Tallennetaan Sheetsiin taustalla
+  if(state.accessToken){
+    ensureToken().then(function(){return writeSettingsToSheet();}).catch(function(){});
+  }
+}
   if(!confirm('Vaihda token? Vanhat QR-koodit lakkaavat toimimasta!'))return;
   const t=randToken();cfg.token=t;saveSettings(cfg);
   state.tokenSaving=true;render();
@@ -714,10 +737,10 @@ function renderQR(){
 
 function renderAsetukset(){
   return '<div class="action-card"><div class="card-title">Kohteen tiedot</div>'+
-    '<div class="field"><label>Kohteen nimi</label><input type="text" value="'+cfg.siteName+'" oninput="cfg.siteName=this.value;saveSettings(cfg)"></div>'+
-    '<div class="field"><label>Piste 1 — aloituspiste</label><input type="text" value="'+cfg.p1label+'" oninput="cfg.p1label=this.value;saveSettings(cfg)"></div>'+
-    '<div class="field"><label>Piste 2 — lopetuspiste</label><input type="text" value="'+cfg.p2label+'" oninput="cfg.p2label=this.value;saveSettings(cfg)"></div>'+
-    '<div class="field"><label>Max tarkastusväli (tuntia)</label><input type="number" min="1" max="168" value="'+cfg.maxInterval+'" oninput="cfg.maxInterval=parseInt(this.value)||24;saveSettings(cfg)"></div>'+
+    '<div class="field"><label>Kohteen nimi</label><input type="text" value="'+cfg.siteName+'" oninput="saveSettingsAndSync(\'siteName\',this.value)"></div>'+
+    '<div class="field"><label>Piste 1 — aloituspiste</label><input type="text" value="'+cfg.p1label+'" oninput="saveSettingsAndSync(\'p1label\',this.value)"></div>'+
+    '<div class="field"><label>Piste 2 — lopetuspiste</label><input type="text" value="'+cfg.p2label+'" oninput="saveSettingsAndSync(\'p2label\',this.value)"></div>'+
+    '<div class="field"><label>Max tarkastusväli (tuntia)</label><input type="number" min="1" max="168" value="'+cfg.maxInterval+'" oninput="saveSettingsAndSync(\'maxInterval\',parseInt(this.value)||24)"></div>'+
     '</div>'+
     '<div class="action-card"><div class="card-title">Turva-token</div>'+
     '<div style="font-family:\'DM Mono\',monospace;font-size:16px;color:var(--text);margin-bottom:4px">'+cfg.token+'</div>'+
