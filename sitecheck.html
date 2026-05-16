@@ -218,8 +218,15 @@ async function loadTokenFromSheet(){
     const d=await r.json();
     if(d.values&&d.values[0]&&d.values[0][0]){
       const t=d.values[0][0].trim();
-      if(t&&t!==cfg.token){cfg.token=t;saveSettings(cfg);}
-    }else{await writeTokenToSheet(cfg.token);}
+      if(t){
+        // Sheets on aina auktoriteetti — ylikirjoitetaan paikallinen token
+        cfg.token=t;
+        saveSettings(cfg);
+      }
+    }else{
+      // Sheets tyhjä — kirjoitetaan paikallinen token sinne
+      await writeTokenToSheet(cfg.token);
+    }
   }catch(e){await ensureTokenSheet();}
 }
 
@@ -371,7 +378,7 @@ function getGPSPromise(){
 
 function handleAutoPoint(){
   if(!autoPoint||!state.user)return;
-  if(urlToken&&urlToken!==cfg.token){cfg.token=urlToken;saveSettings(cfg);}
+  // Tokenin päivitys URL:sta on poistettu — token tulee aina Sheetsistä tai paikallisista asetuksista
   const point=autoPoint==='1'?'P1':autoPoint==='2'?'P2':null;
   if(!point)return;
   const ts=Date.now();
