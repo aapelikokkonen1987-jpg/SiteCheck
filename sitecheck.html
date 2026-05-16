@@ -494,7 +494,8 @@ function saveSettingsAndSync(key, value){
     ensureToken().then(function(){return writeSettingsToSheet();}).catch(function(){});
   }
 }
-  if(!confirm('Vaihda token? Vanhat QR-koodit lakkaavat toimimasta!'))return;
+
+async function changeToken(){
   const t=randToken();cfg.token=t;saveSettings(cfg);
   state.tokenSaving=true;render();
   try{await ensureToken();await writeTokenToSheet(t);state.tokenSaving=false;alert('Token vaihdettu: '+t+'\nTulosta uudet QR-koodit!');}
