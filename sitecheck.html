@@ -111,7 +111,7 @@ const CLIENT_ID = '56096275734-0v2hap6id06ls3a1i20j37mnpvp9a7qa.apps.googleuserc
 const SHEETS_ID = '1PzbE4VDt6rAIhQR9c3v78YyK1tSjFzL0DJVC5M8Nly4';
 const SCOPES = 'https://www.googleapis.com/auth/spreadsheets';
 const SHEET_K = 'Kirjaukset';
-const SHEET_T = 'Token';
+const SHEET_T = 'Turva-token';
 
 function lsGet(k){try{return JSON.parse(localStorage.getItem(k));}catch(e){return null;}}
 function lsSet(k,v){localStorage.setItem(k,JSON.stringify(v));}
@@ -168,6 +168,8 @@ function initGoogle(){
 }
 
 function onTokenReady(){
+  // Tyhjennetään paikallinen token jotta Sheetsistä saatu tulee voimaan
+  cfg.token='LOADING';
   render();
   loadFromSheets().then(function(){
     render();
@@ -214,7 +216,7 @@ async function loadFromSheets(){
 
 async function loadTokenFromSheet(){
   try{
-    const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+SHEET_T+'!A2',
+    const r=await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+encodeURIComponent(SHEET_T)+'!A2',
       {headers:{Authorization:'Bearer '+state.accessToken}});
     const d=await r.json();
     if(d.values&&d.values[0]&&d.values[0][0]){
@@ -257,7 +259,7 @@ async function ensureTokenSheet(){
 }
 
 async function writeTokenToSheet(token){
-  await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+SHEET_T+'!A1?valueInputOption=USER_ENTERED',
+  await fetch('https://sheets.googleapis.com/v4/spreadsheets/'+SHEETS_ID+'/values/'+encodeURIComponent(SHEET_T)+'!A1?valueInputOption=USER_ENTERED',
     {method:'PUT',headers:{Authorization:'Bearer '+state.accessToken,'Content-Type':'application/json'},
     body:JSON.stringify({values:[['Token'],[token],[''],['Muuta tokenia vain jos QR-koodit taytyy uusia.']]})});
 }
