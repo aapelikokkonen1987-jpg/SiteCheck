@@ -361,7 +361,7 @@ async function ensureKirjauksetSheet(){
 // ── QR & SKANNAUS ────────────────────────────────
 function qrPayload(point){
   const base=window.location.href.split('?')[0];
-  return base+'?point='+(point==='P1'?'1':'2');
+  return base+'?point='+(point==='P1'?'1':'2')+'&token='+cfg.token;
 }
 
 function stopCamera(){
@@ -725,9 +725,8 @@ function renderHistoria(){
 }
 
 function renderQR(){
-  const base=window.location.href.split('?')[0];
-  const url1=base+'?point=1';
-  const url2=base+'?point=2';
+  const url1=qrPayload('P1');
+  const url2=qrPayload('P2');
   return '<div class="action-card"><div class="card-title">Tulosta ja kiinnita kohteeseen</div>'+
     '<div class="qr-grid">'+
     '<div class="qr-card"><div id="qrc-p1"></div><div class="qr-card-label">Piste 1</div><div class="qr-card-sub">'+cfg.p1label+'</div></div>'+
